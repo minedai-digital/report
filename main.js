@@ -243,25 +243,42 @@ function generateReport() {
         const time = document.getElementById('time').value;
         
         // التحقق من صحة البيانات
-        if (!inspectorName || !location || !date || !time) {
+        if (!validateForm()) {
             hideLoading();
-            showMessage('يرجى ملء جميع الحقول المطلوبة', 'error');
             return;
         }
         
-        // جمع بيانات الغياب من الحقول المدخلة
-        const absences = [];
-        const absenceRows = document.querySelectorAll('#absenceRows .absence-row');
-        absenceRows.forEach((row) => {
-            const nameInput = row.querySelector('input[type="text"]');
-            const positionSelect = row.querySelector('select');
-            if (nameInput && nameInput.value.trim()) {
-                absences.push({
-                    name: nameInput.value.trim(),
-                    position: positionSelect ? positionSelect.value : ''
-                });
-            }
+        // جمع بيانات الغياب
+        const absences = collectAbsenceData();
+        
+        // توليد محتوى التقرير
+        const reportHTML = generateReportHTML({
+            inspectorName,
+            location,
+            date,
+            time,
+            absences
         });
+        
+        // عرض التقرير
+        const reportContainer = document.getElementById('reportContent');
+        reportContainer.innerHTML = reportHTML;
+        
+        // إظهار القسم الخاص بالتقرير
+        const reportPreview = document.getElementById('reportPreview');
+        reportPreview.style.display = 'block';
+        reportPreview.classList.add('fade-in');
+        
+        // إظهار أزرار الطباعة والإرسال
+        document.getElementById('printBtn').style.display = 'inline-flex';
+        document.getElementById('sendBtn').style.display = 'inline-flex';
+        
+        hideLoading();
+        showStatus('تم إنشاء التقرير بنجاح', 'success');
+        
+        // التمرير إلى التقرير
+        reportPreview.scrollIntoView({ behavior: 'smooth' });
+    }, 1000);
 
 function collectFormData() {
     return {
