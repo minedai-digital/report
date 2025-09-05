@@ -280,6 +280,22 @@ function generateReport() {
         reportPreview.scrollIntoView({ behavior: 'smooth' });
     }, 1000);
 
+function collectAbsenceData() {
+    const absencesList = [];
+    const rows = document.querySelectorAll('#absenceRows .absence-row');
+    rows.forEach((row) => {
+        const nameInput = row.querySelector('input[type="text"]');
+        const positionSelect = row.querySelector('select');
+        if (nameInput && nameInput.value.trim()) {
+            absencesList.push({
+                name: nameInput.value.trim(),
+                position: positionSelect ? positionSelect.value : ''
+            });
+        }
+    });
+    return absencesList;
+}
+
 function collectFormData() {
     return {
         inspectorName: document.getElementById('inspectorName').value.trim(),
@@ -290,19 +306,14 @@ function collectFormData() {
 }
 
 function generateReportHTML(data) {
-    // جمع البيانات من حقول الغياب
-    const absences = [];
-    const absenceRows = document.querySelectorAll('#absenceRows .absence-row');
-    absenceRows.forEach((row) => {
-        const nameInput = row.querySelector('input[type="text"]');
-        const positionSelect = row.querySelector('select');
-        if (nameInput && nameInput.value.trim()) {
-            absences.push({
-                name: nameInput.value.trim(),
-                position: positionSelect ? positionSelect.value : ''
-            });
-        }
-    });
+    const dateObj = new Date(data.date + 'T00:00:00');
+    const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const months = [
+        'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+        'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    ];
+    const dayName = days[dateObj.getDay()];
+    const formattedDate = `${dayName}، ${dateObj.getDate()} ${months[dateObj.getMonth()]}، ${dateObj.getFullYear()}`;
 
     const dateObj = new Date(data.date + 'T00:00:00');
     const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];

@@ -175,6 +175,11 @@
             color: white;
         }
         
+        .btn-info {
+            background: var(--dark-gradient);
+            color: white;
+        }
+        
         .absence-section {
             background: white;
             border-radius: var(--border-radius);
@@ -183,10 +188,16 @@
             box-shadow: var(--card-shadow);
         }
         
+        .absence-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
         .absence-title {
             font-size: 1.3em;
             font-weight: 700;
-            margin-bottom: 20px;
             color: #2d3748;
         }
         
@@ -228,6 +239,10 @@
         
         .suggestion-item:hover {
             background: #f7fafc;
+        }
+        
+        .suggestion-item.active {
+            background: #e2e8f0;
         }
         
         .loading-overlay {
@@ -465,6 +480,11 @@
                 width: 100%;
                 margin-bottom: 10px;
             }
+            
+            .absence-header {
+                flex-direction: column;
+                gap: 15px;
+            }
         }
 
         /* Animations */
@@ -489,6 +509,19 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+        
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .actions {
+                flex-direction: column;
             }
         }
     </style>
@@ -585,6 +618,69 @@
     </div>
 
     <!-- ربط ملف الجافاسكريبت -->
-    <script src="main.js"></script>
+    <script src="new_main.js"></script>
+    <script>
+        // Initialize the application when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date and time
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0];
+            const timeStr = now.toTimeString().slice(0, 5);
+            document.getElementById('date').value = dateStr;
+            document.getElementById('time').value = timeStr;
+            
+            // Setup autocomplete for inspector name and location
+            setupAutoComplete('inspectorName', 'inspectorSuggestions', database.inspectors);
+            setupAutoComplete('location', 'locationSuggestions', database.locations);
+            
+            // Add initial absence row
+            addAbsenceRow();
+            
+            // Handle form submission
+            document.getElementById('reportForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                generateReport();
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'p') {
+                    e.preventDefault();
+                    if (document.getElementById('printBtn').style.display !== 'none') {
+                        printReport();
+                    }
+                }
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    generateReport();
+                }
+                if (e.ctrlKey && e.key === 'n') {
+                    e.preventDefault();
+                    clearForm();
+                }
+                if (e.key === 'F5') {
+                    e.preventDefault();
+                    if (confirm('هل تريد إعادة تحميل الصفحة؟ سيتم فقدان البيانات الحالية.')) {
+                        location.reload();
+                    }
+                }
+            });
+            
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.form-group')) {
+                    document.querySelectorAll('.suggestions').forEach(s => {
+                        s.style.display = 'none';
+                    });
+                }
+            });
+            
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 100);
+            
+            console.log('🚀 تم تحميل نظام تقارير المرور الطبية بنجاح');
+        });
+    </script>
 </body>
 </html>
