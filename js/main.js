@@ -979,7 +979,7 @@ function clearForm() {
 // =============================================================================
 
 /**
- * Simulates sending data to Google Sheets
+ * Sends data to Google Sheets
  */
 async function sendToGoogleSheets() {
     try {
@@ -999,7 +999,8 @@ async function sendToGoogleSheets() {
         
         showLoading(true, 'جاري إرسال البيانات...');
         
-        await simulateGoogleSheetsAPI(data);
+        // Send data to Google Sheets with the correct structure
+        await sendToRealGoogleSheets(data);
         
         AppState.sentReports.add(reportId);
         
@@ -1014,7 +1015,45 @@ async function sendToGoogleSheets() {
 }
 
 /**
- * Simulates the Google Sheets API
+ * Sends data to a real Google Sheet using Google Apps Script
+ * @param {Object} data - Data to send
+ * @returns {Promise} Promise that resolves after sending data
+ */
+async function sendToRealGoogleSheets(data) {
+    // Using your provided Google Apps Script web app URL
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxB35hGWqq-ah6ixWs19IMhYcBMAETRFBpUdZ_1b7Fr1A9fz4SJkI5EoxqBMt7uLsSW/exec';
+    
+    const response = await fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            // Format data according to your Google Sheet structure:
+            date: data.date || '',
+            time: data.time || '',
+            inspector: data.inspectorName || '',
+            location: data.location || '',
+            countAbsence: Array.isArray(data.absences) ? data.absences.length : 0
+        })
+    });
+    
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to send data to Google Sheets: ${errorText}`);
+    }
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+        throw new Error(result.message || 'Failed to send data to Google Sheets');
+    }
+    
+    return result;
+}
+
+/**
+ * Simulates the Google Sheets API with the correct column structure
  * @param {Object} data - Data to send
  * @returns {Promise} Promise that resolves after a delay
  */
@@ -1026,18 +1065,17 @@ async function simulateGoogleSheetsAPI(data) {
                     throw new Error('Invalid data');
                 }
                 
+                // Format data according to your Google Sheet structure:
+                // Date | Time | Inspector | Location | Count absence
                 const sheetData = {
-                    timestamp: new Date().toLocaleString('ar-EG'),
-                    inspectorName: data.inspectorName || '',
-                    location: data.location || '',
                     date: data.date || '',
                     time: data.time || '',
-                    absenceCount: Array.isArray(data.absences) ? data.absences.length : 0,
-                    totalAbsences: Array.isArray(data.absences) ? data.absences.length : 0,
-                    workLeaveCount: 0
+                    inspector: data.inspectorName || '',
+                    location: data.location || '',
+                    countAbsence: Array.isArray(data.absences) ? data.absences.length : 0
                 };
                 
-                console.log('🔄 بيانات مرسلة لجوجل شيتس:', sheetData);
+                console.log('🔄 بيانات مرسلة لجوجل شيتس بالتنسيق المطلوب:', sheetData);
                 resolve(sheetData);
             } catch (error) {
                 console.error('Error in Google Sheets simulation:', error);

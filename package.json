@@ -8,7 +8,9 @@
     "start": "npx serve .",
     "dev": "npx serve . -p 3000",
     "test": "node tests/test-runner.js",
-    "test:watch": "nodemon tests/test-runner.js"
+    "test:watch": "nodemon tests/test-runner.js",
+    "backend": "node backend-example.js",
+    "backend:dev": "nodemon backend-example.js"
   },
   "keywords": [
     "medical",
@@ -22,5 +24,10 @@
   "devDependencies": {
     "serve": "^14.2.0",
     "nodemon": "^3.0.1"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "googleapis": "^105.0.0"
   }
 }

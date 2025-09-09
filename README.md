@@ -7,7 +7,7 @@ A professional web-based application for creating and printing medical inspectio
 - Professional report generation with customizable templates
 - Auto-complete system for inspectors, locations, and employees
 - Print-ready report formatting
-- Data export to Google Sheets (simulated)
+- Data export to Google Sheets
 - Responsive Arabic user interface
 - Real-time form validation
 - Keyboard shortcuts for enhanced productivity
@@ -35,10 +35,14 @@ medical-inspection-reports/
 │   ├── user-guide.md   # User guide
 │   ├── api.md          # API documentation
 │   ├── development.md  # Development guide
-│   └── architecture.md # Architecture documentation
+│   ├── architecture.md # Architecture documentation
+│   ├── google-sheets-integration.md # Google Sheets integration guide
+│   ├── backend-setup.md # Backend service setup guide
+│   └── google-apps-script-example.md # Google Apps Script alternative
 ├── tests/
 │   ├── test-runner.js  # Test runner
 │   └── utils.test.js   # Unit tests for utility functions
+├── backend-example.js  # Example backend service for Google Sheets integration
 ├── assets/
 │   └── fonts/          # Custom fonts (if any)
 ├── package.json        # Project metadata and dependencies
@@ -95,6 +99,23 @@ Then open your browser and go to `http://localhost:8000`
 3. Add absence cases if any
 4. Click "Generate Report"
 5. Print the report, export as PDF, or send data to Google Sheets
+
+## Google Sheets Integration
+
+The application can send data to Google Sheets. Your Google Sheet should have the following columns in this exact order:
+```
+Date | Time | Inspector | Location | Count absence
+```
+
+You have two options for Google Sheets integration:
+
+### Option 1: Backend Service (Recommended for Production)
+For detailed instructions on setting up the backend service, see [Backend Service Setup Guide](docs/backend-setup.md).
+
+### Option 2: Google Apps Script (Simpler Alternative)
+For a simpler setup without a backend server, see [Google Apps Script Example](docs/google-apps-script-example.md).
+
+For general information about Google Sheets integration, see [Google Sheets Integration Guide](docs/google-sheets-integration.md).
 
 ## Keyboard Shortcuts
 
@@ -167,6 +188,9 @@ Comprehensive documentation is available in the `docs/` directory:
 - [API Documentation](docs/api.md) - Technical documentation for developers
 - [Development Guide](docs/development.md) - Guidelines for contributing to the project
 - [Architecture](docs/architecture.md) - System architecture and design decisions
+- [Google Sheets Integration Guide](docs/google-sheets-integration.md) - Instructions for Google Sheets setup
+- [Backend Service Setup Guide](docs/backend-setup.md) - Detailed backend setup instructions
+- [Google Apps Script Example](docs/google-apps-script-example.md) - Simpler alternative without backend
 
 ### Contributing
 
@@ -183,7 +207,7 @@ Comprehensive documentation is available in the `docs/` directory:
 - `generateReport()` - Generates the medical inspection report
 - `printReport()` - Prints the generated report
 - `exportReportAsPDF()` - Exports the report as PDF
-- `sendToGoogleSheets()` - Sends data to Google Sheets (simulated)
+- `sendToGoogleSheets()` - Sends data to Google Sheets
 - `clearForm()` - Clears all form data
 - `addAbsenceRow()` - Adds a new absence row to the form
 - `removeAbsenceRow(btn)` - Removes an absence row from the form
