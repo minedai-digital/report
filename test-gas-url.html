@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار رابط Google Apps Script</title>
+    <style>
+        body {
+            font-family: 'Noto Sans Arabic', sans-serif;
+            padding: 20px;
+            direction: rtl;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-container {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .result {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Noto Sans Arabic', sans-serif;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        pre {
+            background: #333;
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>اختبار رابط Google Apps Script</h1>
+    
+    <div class="test-container">
+        <h2>اختبار الوصول إلى الرابط</h2>
+        <button id="testGetBtn" onclick="testGetRequest()">اختبار طلب GET</button>
+        <button id="testPostBtn" onclick="testPostRequest()" disabled>اختبار طلب POST</button>
+    </div>
+    
+    <div class="test-container">
+        <h2>نتائج الاختبار</h2>
+        <div id="results"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>سجل الأخطاء</h2>
+        <div id="errorLog"></div>
+    </div>
+
+    <script>
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxB35hGWqq-ah6ixWs19IMhYcBMAETRFBpUdZ_1b7Fr1A9fz4SJkI5EoxqBMt7uLsSW/exec';
+        
+        function logError(message, error) {
+            const errorLog = document.getElementById('errorLog');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'result error';
+            errorDiv.innerHTML = `<strong>خطأ:</strong> ${message}<br><pre>${error ? error.toString() : 'Unknown error'}</pre>`;
+            errorLog.appendChild(errorDiv);
+            console.error(message, error);
+        }
+        
+        function logSuccess(message, data) {
+            const results = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result success';
+            resultDiv.innerHTML = `<strong>نجاح:</strong> ${message}<br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+            results.appendChild(resultDiv);
+            console.log(message, data);
+        }
+        
+        async function testGetRequest() {
+            const btn = document.getElementById('testGetBtn');
+            btn.disabled = true;
+            btn.textContent = 'جاري الاختبار...';
+            
+            try {
+                console.log('Testing GET request to:', WEB_APP_URL);
+                const response = await fetch(WEB_APP_URL);
+                console.log('GET response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                logSuccess('طلب GET ناجح', data);
+                
+                // Enable POST test button
+                document.getElementById('testPostBtn').disabled = false;
+            } catch (error) {
+                logError('فشل طلب GET', error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'اختبار طلب GET';
+            }
+        }
+        
+        async function testPostRequest() {
+            const btn = document.getElementById('testPostBtn');
+            btn.disabled = true;
+            btn.textContent = 'جاري الاختبار...';
+            
+            try {
+                // Test data
+                const testData = {
+                    date: '2023-10-15',
+                    time: '14:30',
+                    inspector: 'الطارق زهران',
+                    location: 'مستشفى المحلة الكبرى العام',
+                    countAbsence: 3
+                };
+                
+                console.log('Testing POST request with data:', testData);
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                console.log('POST response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                logSuccess('طلب POST ناجح', data);
+            } catch (error) {
+                logError('فشل طلب POST', error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'اختبار طلب POST';
+            }
+        }
+    </script>
+</body>
+</html>

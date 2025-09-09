@@ -1,249 +1,158 @@
-# Medical Inspection Reports System
+# نظام تقارير المرور الطبية
 
-A professional web-based application for creating and printing medical inspection reports for hospitals and health centers in Arabic.
+نظام احترافي لإنشاء وطباعة تقارير المرور الطبية للمستشفيات والمراكز الصحية باللغة العربية.
 
-## Features
+## الميزات الرئيسية
 
-- Professional report generation with customizable templates
-- Auto-complete system for inspectors, locations, and employees
-- Print-ready report formatting
-- Data export to Google Sheets
-- Responsive Arabic user interface
-- Real-time form validation
-- Keyboard shortcuts for enhanced productivity
-- Advanced security features to prevent XSS attacks
-- Comprehensive error handling and user feedback
-- Performance optimized for fast loading and smooth operation
-- PDF export functionality
-- Comprehensive documentation
+- واجهة سهلة الاستخدام باللغة العربية مع دعم النص من اليمين إلى اليسار
+- إنشاء تقارير مراجعة داخلية احترافية بتنسيق PDF قابل للطباعة
+- نظام إدخال بيانات متقدم مع:
+  - إكمال تلقائي لأسماء المفتشين والجهات
+  - ~~إكمال تلقائي لأسماء الموظفين~~ (تمت إزالة هذه الميزة)
+  - إدخال حر لأسماء الموظفين دون قيود
+  - تحديد تلقائي للوظائف عند إدخال اسم الموظف
+- إدارة حالات الغياب والانضباط مع جدول تلقائي
+- تصدير التقارير إلى ملفات PDF
+- حفظ البيانات في جداول Google Sheets
+- تصميم متجاوب يعمل على جميع الأجهزة
+- نظام طباعة محسّن للحصول على تقارير احترافية
 
-## Project Structure
+## هيكل المشروع
 
 ```
-medical-inspection-reports/
-├── index.html          # Main HTML file
+report/
+│
+├── index.html          # صفحة التطبيق الرئيسية
 ├── css/
-│   └── styles.css      # Stylesheet with responsive design
+│   └── styles.css      # أنماط CSS للتطبيق
 ├── js/
-│   ├── main.js         # Main application logic with ES6 modules
-│   ├── database.js     # Database module for data handling
-│   └── utils.js        # Utility functions for validation, formatting, and security
+│   ├── main.js         # منطق التطبيق الرئيسي
+│   ├── database.js     # وحدة إدارة قاعدة البيانات
+│   └── utils.js        # وظائف مساعدة
 ├── data/
-│   └── database.json   # JSON data storage for inspectors, locations, employees, and positions
+│   └── database.json   # تخزين بيانات JSON للمفتشين والجهات والموظفين والوظائف
 ├── docs/
-│   ├── README.md       # Documentation overview
-│   ├── user-guide.md   # User guide
-│   ├── api.md          # API documentation
-│   ├── development.md  # Development guide
-│   ├── architecture.md # Architecture documentation
-│   ├── google-sheets-integration.md # Google Sheets integration guide
-│   ├── backend-setup.md # Backend service setup guide
-│   └── google-apps-script-example.md # Google Apps Script alternative
+│   ├── user-guide.md   # دليل المستخدم
+│   ├── api.md          # توثيق API
+│   ├── architecture.md # توثيق البنية
+│   └── development.md  # دليل التطوير
 ├── tests/
-│   ├── test-runner.js  # Test runner
-│   └── utils.test.js   # Unit tests for utility functions
-├── backend-example.js  # Example backend service for Google Sheets integration
-├── assets/
-│   └── fonts/          # Custom fonts (if any)
-├── package.json        # Project metadata and dependencies
-├── CHANGELOG.md        # Version history
-├── LICENSE             # License information
-└── README.md           # Project documentation
+│   └── test-runner.js  # مشغل اختبارات الوحدة
+├── package.json        # تبعيات المشروع وإعدادات البناء
+└── README.md           # هذا الملف
 ```
 
-## Getting Started
+## المتطلبات
 
-### Prerequisites
+- متصفح ويب حديث (Chrome، Firefox، Edge)
+- اتصال بالإنترنت (للخطوط والرموز)
 
-- Modern web browser (Chrome, Firefox, Edge)
-- Node.js (optional, for development server)
+## التثبيت والاستخدام
 
-### Installation
+1. استنساخ المستودع أو تنزيل ملفات المشروع
+2. فتح `index.html` في متصفح ويب
+3. البدء في استخدام النظام لإنشاء تقارير المرور الطبية
 
-1. Clone or download the repository
-2. Open `index.html` in your browser directly, or
-3. Run a local development server:
+### للتطوير المحلي
 
 ```bash
-# Install dependencies
+# تثبيت التبعيات
 npm install
 
-# Start development server
+# تشغيل خادم تطوير محلي
 npm start
 
-# Or start development server on port 3000
+# أو تشغيل على منفذ مخصص
 npm run dev
 ```
 
-### Alternative Installation (without Node.js)
+## كيفية الاستخدام
 
-If you don't have Node.js installed, you can use Python's built-in HTTP server:
+1. **ملء بيانات التقرير**:
+   - أدخل اسم المفتش (مع إكمال تلقائي)
+   - أدخل اسم الجهة (مع إكمال تلقائي)
+   - حدد تاريخ ووقت المرور
 
-```bash
-# Navigate to the project directory
-cd medical-inspection-reports
+2. **إضافة حالات الغياب**:
+   - انقر على "إضافة حالة غياب"
+   - أدخل اسم الموظف (بدون قيود أو اقتراحات)
+   - حدد الوظيفة من القائمة المنسدلة
 
-# Start Python HTTP server (Python 3)
-python3 -m http.server 8000
+3. **إنشاء التقرير**:
+   - انقر على "إنشاء التقرير"
+   - راجع التقرير المُنشأ
 
-# Or for Python 2
-python -m SimpleHTTPServer 8000
-```
+4. **الإجراءات المتاحة**:
+   - **طباعة التقرير**: انقر على زر الطباعة
+   - **تصدير PDF**: استخدم خيارات الطباعة لحفظ كـ PDF
+   - **إرسال إلى Google Sheets**: انقر على زر الإرسال
 
-Then open your browser and go to `http://localhost:8000`
+## ميزات متقدمة
 
-## Usage
+### إكمال تلقائي
+- يتم توفير إكمال تلقائي لأسماء المفتشين والجهات لتسهيل الإدخال
+- أسماء الموظفين تُدخل بشكل حر دون اقتراحات
 
-1. Open the application in your browser
-2. Fill in the report details (inspector name, location, date, time)
-3. Add absence cases if any
-4. Click "Generate Report"
-5. Print the report, export as PDF, or send data to Google Sheets
+### إدارة البيانات
+- جميع البيانات مخزنة في ملف `data/database.json`
+- يمكن تعديل قوائم المفتشين والجهات والموظفين والوظائف بسهولة
 
-## Google Sheets Integration
+### تصدير البيانات
+- التصدير إلى PDF عبر ميزة الطباعة المدمجة في المتصفح
+- الإرسال إلى جداول Google Sheets عبر Google Apps Script
 
-The application can send data to Google Sheets. Your Google Sheet should have the following columns in this exact order:
-```
-Date | Time | Inspector | Location | Count absence
-```
+## حل مشاكل شائعة
 
-You have two options for Google Sheets integration:
+### مشاكل الطباعة
+إذا كانت أنماط الطباعة لا تعمل بشكل صحيح:
+1. تأكد من استخدام أحدث إصدار من المتصفح
+2. تحقق من إعدادات الطباعة في المتصفح
+3. استخدم اختبار الطباعة المتوفر في `test-print-styles.html`
 
-### Option 1: Backend Service (Recommended for Production)
-For detailed instructions on setting up the backend service, see [Backend Service Setup Guide](docs/backend-setup.md).
+### مشاكل إرسال Google Sheets
+إذا كان إرسال البيانات إلى Google Sheets لا يعمل:
+1. تحقق من أن Google Apps Script مُنشر بشكل صحيح
+2. راجع دليل استكشاف الأخطاء وإصلاحها في `GOOGLE_SHEETS_TROUBLESHOOTING.md`
+3. استخدم ملفات الاختبار لتشخيص المشكلة
 
-### Option 2: Google Apps Script (Simpler Alternative)
-For a simpler setup without a backend server, see [Google Apps Script Example](docs/google-apps-script-example.md).
+## المساهمة
 
-For general information about Google Sheets integration, see [Google Sheets Integration Guide](docs/google-sheets-integration.md).
+مرحبًا بك في المساهمات! يرجى اتباع هذه الخطوات:
 
-## Keyboard Shortcuts
+1. عمل Fork للمستودع
+2. إنشاء فرع للميزة (`git checkout -b feature/AmazingFeature`)
+3. تنفيذ التغييرات
+4. تنفيذ الاختبارات المناسبة
+5. إرسال Pull Request
 
-- `Ctrl + S` - Generate report
-- `Ctrl + P` - Print report
-- `Ctrl + N` - Clear form
-- `F5` - Refresh page (with confirmation)
+## الاختبار
 
-## Technical Details
+لتنفيذ اختبارات الوحدة:
 
-### Technologies Used
-
-- HTML5 with semantic markup
-- CSS3 (with Flexbox and Grid) for responsive design
-- JavaScript (ES6+) with modular architecture
-- Google Fonts (Noto Sans Arabic) for Arabic text rendering
-- Font Awesome Icons for UI elements
-
-### Code Organization
-
-The application follows a modular approach with clear separation of concerns:
-- **UI Components**: Form elements, report preview, modals, and loading overlays
-- **Data Management**: Form validation, data collection, and state management
-- **Business Logic**: Report generation, date formatting, and data processing
-- **Utilities**: Helper functions for validation, formatting, security, and DOM manipulation
-- **Error Handling**: Comprehensive error handling with user-friendly messages
-- **Database**: Separate JSON file for data storage with dedicated module
-
-### Security Features
-
-- XSS prevention through HTML escaping
-- Input validation and sanitization
-- Secure data handling practices
-- Error handling and user feedback without exposing system details
-
-### Performance Optimizations
-
-- Efficient DOM manipulation with minimal reflows
-- Lazy loading of non-critical resources
-- Optimized event handling with proper cleanup
-- Memory management to prevent leaks
-
-## Development
-
-### Code Standards
-
-- Consistent naming conventions following camelCase for variables and PascalCase for constructors
-- Comprehensive JSDoc documentation for all functions
-- Error handling in all functions with try/catch blocks
-- Responsive design principles with mobile-first approach
-- Accessibility considerations with proper ARIA attributes
-- Modular architecture with ES6 imports/exports
-
-### Testing
-
-Unit tests are located in the `tests/` directory and can be run with:
 ```bash
 npm test
-```
 
-To run tests in watch mode:
-```bash
+# أو تشغيل في وضع المراقبة
 npm run test:watch
 ```
 
-### Documentation
+## التوثيق
 
-Comprehensive documentation is available in the `docs/` directory:
-- [User Guide](docs/user-guide.md) - Instructions for end users
-- [API Documentation](docs/api.md) - Technical documentation for developers
-- [Development Guide](docs/development.md) - Guidelines for contributing to the project
-- [Architecture](docs/architecture.md) - System architecture and design decisions
-- [Google Sheets Integration Guide](docs/google-sheets-integration.md) - Instructions for Google Sheets setup
-- [Backend Service Setup Guide](docs/backend-setup.md) - Detailed backend setup instructions
-- [Google Apps Script Example](docs/google-apps-script-example.md) - Simpler alternative without backend
+للمزيد من المعلومات التفصيلية، يرجى الرجوع إلى:
 
-### Contributing
+- [دليل المستخدم](docs/user-guide.md)
+- [توثيق API](docs/api.md)
+- [توثيق البنية](docs/architecture.md)
+- [دليل التطوير](docs/development.md)
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a pull request
+## الترخيص
 
-## API Documentation
+هذا المشروع مرخص بموجب ترخيص MIT - راجع ملف [LICENSE](LICENSE) للمزيد من التفاصيل.
 
-### Main Functions
+## الدعم
 
-- `generateReport()` - Generates the medical inspection report
-- `printReport()` - Prints the generated report
-- `exportReportAsPDF()` - Exports the report as PDF
-- `sendToGoogleSheets()` - Sends data to Google Sheets
-- `clearForm()` - Clears all form data
-- `addAbsenceRow()` - Adds a new absence row to the form
-- `removeAbsenceRow(btn)` - Removes an absence row from the form
+للحصول على الدعم أو الإبلاغ عن المشكلات، يرجى:
 
-### Utility Functions
-
-- `formatDate(dateString)` - Formats dates in Arabic
-- `formatTime(timeString)` - Formats time values
-- `escapeHtml(text)` - Prevents XSS attacks
-- `validateForm()` - Validates form data
-- `showStatus(message, type)` - Displays status messages
-- `showLoading(show, message)` - Shows/hides loading overlay
-
-### Database Functions
-
-- `loadDatabase()` - Loads the database from JSON file
-- `getInspectors()` - Gets list of inspectors
-- `getLocations()` - Gets list of locations
-- `getEmployees()` - Gets list of employees
-- `getPositions()` - Gets list of positions
-
-## Browser Support
-
-- Chrome (latest 2 versions)
-- Firefox (latest 2 versions)
-- Safari (latest 2 versions)
-- Edge (latest 2 versions)
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Author
-
-Developed by Tarek Zhran
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
+1. فتح مشكلة في هذا المستودع
+2. تقديم وصف مفصل للمشكلة
+3. تضمين خطوات لإعادة إنتاج المشكلة

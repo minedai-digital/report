@@ -280,7 +280,7 @@ function generateReportHTML(data) {
                 <div class="signature-name">أ/عبدالله الجبالي</div>
             </div>
             <div class="signature-box">
-                <div class="signature-title">-mfتش مالي وإداري</div>
+                <div class="signature-title">-مفتش مالي وإداري</div>
                 <div class="signature-name">${escapeHtml(data.inspectorName || '')}</div>
             </div>
         </div>
@@ -550,15 +550,15 @@ function selectSuggestion(inputId, value) {
 }
 
 /**
- * Sets up employee autocomplete with position auto-fill
+ * Sets up employee name input without autocomplete
  * @param {string} nameInputId - ID of the employee name input
  * @param {string} positionInputId - ID of the position select
- * @throws {Error} If there's an error setting up employee autocomplete
+ * @throws {Error} If there's an error setting up employee input
  */
-function setupEmployeeAutoComplete(nameInputId, positionInputId) {
+function setupEmployeeInput(nameInputId, positionInputId) {
     try {
         if (!nameInputId || !positionInputId) {
-            console.error('Invalid parameters for employee autocomplete setup');
+            console.error('Invalid parameters for employee input setup');
             return;
         }
         
@@ -566,23 +566,17 @@ function setupEmployeeAutoComplete(nameInputId, positionInputId) {
         const positionInput = document.getElementById(positionInputId);
         
         if (!nameInput || !positionInput) {
-            console.error('Elements not found for employee autocomplete setup');
+            console.error('Elements not found for employee input setup');
             return;
         }
         
-        const suggestionsDiv = document.createElement('div');
-        suggestionsDiv.className = 'suggestions';
-        suggestionsDiv.id = nameInputId + 'Suggestions';
-        suggestionsDiv.setAttribute('role', 'listbox');
-        
-        if (nameInput.parentElement) {
-            nameInput.parentElement.appendChild(suggestionsDiv);
-        }
-        
-        setupAutoComplete(nameInputId, nameInputId + 'Suggestions', getEmployees());
+        // Remove any existing autocomplete functionality
+        // Just set up a simple input without suggestions
         
         nameInput.addEventListener('input', function() {
             try {
+                // Optionally auto-fill position when name is entered
+                // This can be removed if not needed
                 if (this.value && this.value.trim()) {
                     const positions = getPositions();
                     if (positions && positions.length > 0 && !positionInput.value) {
@@ -595,8 +589,8 @@ function setupEmployeeAutoComplete(nameInputId, positionInputId) {
             }
         });
     } catch (error) {
-        console.error('Error setting up employee autocomplete:', error);
-        showStatus('حدث خطأ في إعداد نظام إكمال بيانات الموظف. يرجى المحاولة مرة أخرى.', 'error');
+        console.error('Error setting up employee input:', error);
+        showStatus('حدث خطأ في إعداد حقل اسم الموظف. يرجى المحاولة مرة أخرى.', 'error');
     }
 }
 
@@ -623,7 +617,7 @@ function addAbsenceRow() {
             <label for="employeeName${AppState.absenceCount}"><i class="fas fa-user"></i> الاسم</label>
             <div style="position: relative;">
                 <input type="text" id="employeeName${AppState.absenceCount}" placeholder="ادخل اسم الموظف" aria-describedby="employeeName${AppState.absenceCount}-help">
-                <i class="fas fa-search input-icon"></i>
+                <i class="fas fa-user input-icon"></i>
             </div>
             <div id="employeeName${AppState.absenceCount}-help" class="sr-only">أدخل اسم الموظف</div>
         </div>
@@ -649,7 +643,7 @@ function addAbsenceRow() {
     `;
         
         absenceRows.appendChild(rowDiv);
-        setupEmployeeAutoComplete(`employeeName${AppState.absenceCount}`, `employeePosition${AppState.absenceCount}`);
+        setupEmployeeInput(`employeeName${AppState.absenceCount}`, `employeePosition${AppState.absenceCount}`);
         
         // Focus on the new input field
         setTimeout(() => {
@@ -1008,7 +1002,16 @@ async function sendToGoogleSheets() {
         console.log('Data sent to Google Sheets:', data);
     } catch (error) {
         console.error('Error sending to Google Sheets:', error);
-        showStatus('حدث خطأ في إرسال البيانات. يرجى المحاولة مرة أخرى.', 'error');
+        // Provide more specific error messages based on the error type
+        if (error.message.includes('Google Apps Script web app is not properly configured')) {
+            showStatus('خطأ في إعداد Google Apps Script. يرجى مراجعة ملف GOOGLE_SHEETS_TROUBLESHOOTING.md للحصول على تعليمات الإصلاح.', 'error');
+        } else if (error.message.includes('Failed to fetch')) {
+            showStatus('فشل في الاتصال بـ Google Sheets. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.', 'error');
+        } else if (error.message.includes('Invalid response')) {
+            showStatus('استجابة غير صحيحة من Google Sheets. يرجى التحقق من إعدادات Google Apps Script.', 'error');
+        } else {
+            showStatus('حدث خطأ في إرسال البيانات: ' + error.message, 'error');
+        }
     } finally {
         showLoading(false);
     }
@@ -1021,35 +1024,68 @@ async function sendToGoogleSheets() {
  */
 async function sendToRealGoogleSheets(data) {
     // Using your provided Google Apps Script web app URL
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxB35hGWqq-ah6ixWs19IMhYcBMAETRFBpUdZ_1b7Fr1A9fz4SJkI5EoxqBMt7uLsSW/exec';
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxSMXxfqxfQ4_x00ydjA_I9vAXre5HLT6jEafVk6uFCMM-9niITztvHdXh5VKvu06Q/exec';
     
-    const response = await fetch(WEB_APP_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            // Format data according to your Google Sheet structure:
-            date: data.date || '',
-            time: data.time || '',
-            inspector: data.inspectorName || '',
-            location: data.location || '',
-            countAbsence: Array.isArray(data.absences) ? data.absences.length : 0
-        })
-    });
-    
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to send data to Google Sheets: ${errorText}`);
+    try {
+        console.log('Sending data to Google Sheets:', data);
+        
+        const response = await fetch(WEB_APP_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                // Format data according to your Google Sheet structure:
+                date: data.date || '',
+                time: data.time || '',
+                inspector: data.inspectorName || '',
+                location: data.location || '',
+                countAbsence: Array.isArray(data.absences) ? data.absences.length : 0
+            })
+        });
+        
+        console.log('Response status:', response.status);
+        console.log('Response headers:', [...response.headers.entries()]);
+        
+        // Check if we're being redirected to a login page
+        const redirectUrl = response.headers.get('location');
+        if (response.status === 302 && redirectUrl && redirectUrl.includes('accounts.google.com')) {
+            throw new Error('Google Apps Script web app is not properly configured for public access. Please check the deployment settings in Google Apps Script and ensure "Anyone" or "Anyone with Google" has access.');
+        }
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error response from Google Sheets:', errorText);
+            throw new Error(`Failed to send data to Google Sheets: ${response.status} ${response.statusText}. ${errorText}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const responseText = await response.text();
+            console.error('Non-JSON response from Google Sheets:', responseText);
+            throw new Error('Invalid response from Google Sheets. Please check your Google Apps Script configuration.');
+        }
+        
+        const result = await response.json();
+        console.log('Success response from Google Sheets:', result);
+        
+        if (!result.success) {
+            throw new Error(result.message || 'Failed to send data to Google Sheets');
+        }
+        
+        return result;
+    } catch (error) {
+        console.error('Error in sendToRealGoogleSheets:', error);
+        
+        // Provide more specific error messages
+        if (error.message.includes('Google Apps Script web app is not properly configured')) {
+            throw new Error('خطأ في إعداد Google Apps Script: ' + error.message);
+        } else if (error.message.includes('Failed to fetch')) {
+            throw new Error('فشل في الاتصال بـ Google Sheets. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.');
+        } else {
+            throw error;
+        }
     }
-    
-    const result = await response.json();
-    
-    if (!result.success) {
-        throw new Error(result.message || 'Failed to send data to Google Sheets');
-    }
-    
-    return result;
 }
 
 /**

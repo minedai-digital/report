@@ -540,23 +540,6 @@ input:invalid:not(:focus):not(:placeholder-shown) {
     font-weight: 600;
 }
 
-@media print {
-    body {
-        background: none;
-    }
-    .report-preview {
-        box-shadow: none;
-        padding: 0;
-    }
-    .absence-table {
-        page-break-inside: avoid;
-    }
-    .signatures-section {
-        page-break-inside: avoid;
-        margin-top: 30px;
-    }
-}
-
 @media (max-width: 768px) {
     .container {
         padding: 10px;
@@ -662,17 +645,24 @@ textarea:focus {
     
     body {
         background: white !important;
+        font-size: 12pt;
+        line-height: 1.4;
+        margin: 0;
+        padding: 0;
     }
     
     .container {
         max-width: 100%;
         padding: 0;
+        margin: 0;
     }
     
-    .form-container,
     .app-header,
+    .form-container,
     .actions,
-    .status-message {
+    .status-message,
+    .loading-overlay,
+    .suggestions {
         display: none !important;
     }
     
@@ -681,6 +671,197 @@ textarea:focus {
         box-shadow: none;
         padding: 0;
         margin: 0;
+        border: none;
+    }
+    
+    /* Report-specific print styles */
+    .report-header {
+        text-align: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #000;
+        padding-bottom: 15px;
+        page-break-after: avoid;
+    }
+    
+    .ministry-name {
+        font-size: 18pt;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+    
+    .department-name {
+        font-size: 16pt;
+        margin-bottom: 10px;
+    }
+    
+    .report-title {
+        font-size: 20pt;
+        font-weight: bold;
+        margin: 15px 0;
+    }
+    
+    .report-subtitle {
+        font-size: 14pt;
+        margin-bottom: 8px;
+    }
+    
+    .info-table {
+        width: 100%;
+        margin-bottom: 15px;
+        border-collapse: collapse;
+        font-size: 12pt;
+        page-break-inside: avoid;
+    }
+    
+    .info-table td {
+        padding: 10px;
+        border: 1px solid #000;
+        width: 33.33%;
+        text-align: center;
+    }
+    
+    .info-table .highlight {
+        background-color: #f0f0f0;
+        font-weight: 600;
+    }
+    
+    .result-section {
+        margin: 20px 0;
+    }
+    
+    .result-title {
+        font-size: 16pt;
+        font-weight: bold;
+        margin-bottom: 12px;
+        border-bottom: 1px solid #000;
+        padding-bottom: 5px;
+        page-break-after: avoid;
+    }
+    
+    .result-box {
+        border: 1px solid #000;
+        padding: 15px;
+        margin-bottom: 15px;
+        background-color: #fff;
+        line-height: 1.6;
+        page-break-inside: avoid;
+    }
+    
+    .cases-count-box {
+        display: inline-block;
+        padding: 8px 15px;
+        background-color: #fff;
+        border: 1px solid #000;
+        margin: 10px 0;
+        font-weight: bold;
+    }
+    
+    .absence-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+        font-size: 11pt;
+        page-break-inside: avoid;
+    }
+    
+    .absence-table th,
+    .absence-table td {
+        border: 1px solid #000;
+        padding: 8px;
+        text-align: center;
+    }
+    
+    .absence-table th {
+        background-color: #f0f0f0;
+        font-weight: bold;
+        color: #000;
+    }
+    
+    .absence-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    
+    .opinion-section {
+        margin: 20px 0;
+    }
+    
+    .opinion-box {
+        border: 1px solid #000;
+        padding: 15px;
+        background-color: #fff;
+        margin-bottom: 15px;
+        line-height: 1.6;
+        page-break-inside: avoid;
+    }
+    
+    .closing-statement {
+        margin: 15px 0;
+        text-align: center;
+        line-height: 1.6;
+        font-weight: 500;
+    }
+    
+    .signatures-section {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: space-between;
+        margin-top: 40px;
+        padding: 15px;
+        page-break-inside: avoid;
+    }
+    
+    .signature-box {
+        text-align: center;
+        width: 45%;
+        padding: 0 15px;
+    }
+    
+    .signature-title {
+        font-weight: bold;
+        margin-bottom: 40px;
+        font-size: 12pt;
+    }
+    
+    .signature-name {
+        border-top: 1px solid #000;
+        padding-top: 8px;
+        margin-top: 8px;
+        font-size: 12pt;
+        font-weight: 600;
+    }
+    
+    /* Page break controls */
+    .result-section,
+    .opinion-section,
+    .signatures-section {
+        page-break-inside: avoid;
+    }
+    
+    /* Ensure proper text rendering for Arabic */
+    body, 
+    .report-header, 
+    .result-box, 
+    .opinion-box,
+    .absence-table {
+        font-family: 'Noto Sans Arabic', sans-serif !important;
+        direction: rtl;
+    }
+    
+    /* Prevent widows and orphans */
+    p, h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+        page-break-inside: avoid;
+    }
+    
+    /* Ensure table rows stay together */
+    tr {
+        page-break-inside: avoid;
+    }
+    
+    /* Optimize for A4 paper */
+    @page {
+        size: A4;
+        margin: 15mm;
     }
 }
 
@@ -746,37 +927,6 @@ textarea:focus {
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 15px;
-}
-
-/* Enhanced table styles */
-.absence-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.absence-table th,
-.absence-table td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: center;
-}
-
-.absence-table th {
-    background-color: #f4f6f8;
-    font-weight: bold;
-    color: #2d3748;
-}
-
-.absence-table tr:nth-child(even) {
-    background-color: #f8f9fa;
-}
-
-.absence-table tr:hover {
-    background-color: #e2e8f0;
 }
 
 /* Improved form validation styles */

@@ -131,14 +131,14 @@ If you haven't already deployed your script, follow these steps:
 
 **Note**: You've already deployed your script at this URL:
 ```
-https://script.google.com/macros/s/AKfycbxB35hGWqq-ah6ixWs19IMhYcBMAETRFBpUdZ_1b7Fr1A9fz4SJkI5EoxqBMt7uLsSW/exec
+https://script.google.com/macros/s/AKfycbxSMXxfqxfQ4_x00ydjA_I9vAXre5HLT6jEafVk6uFCMM-9niITztvHdXh5VKvu06Q/exec
 ```
 
 ### Step 4: Update Frontend Code
 
-The application is already configured to use your web app URL. The [sendToRealGoogleSheets](file:///Users/tarekzhran/Documents/report/js/main.js#L1003-L1037) function in [js/main.js](../js/main.js) has been updated to use:
+The application is already configured to use your web app URL. The [sendToRealGoogleSheets](file:///Users/tarekzhran/Documents/report/js/main.js#L1003-L1054) function in [js/main.js](../js/main.js) has been updated to use:
 ```
-https://script.google.com/macros/s/AKfycbxB35hGWqq-ah6ixWs19IMhYcBMAETRFBpUdZ_1b7Fr1A9fz4SJkI5EoxqBMt7uLsSW/exec
+https://script.google.com/macros/s/AKfycbxSMXxfqxfQ4_x00ydjA_I9vAXre5HLT6jEafVk6uFCMM-9niITztvHdXh5VKvu06Q/exec
 ```
 
 ### Step 5: Test the Integration

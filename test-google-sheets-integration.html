@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار تكامل Google Sheets</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans Arabic', sans-serif;
+            padding: 20px;
+            direction: rtl;
+            max-width: 800px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: 'Noto Sans Arabic', sans-serif;
+        }
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Noto Sans Arabic', sans-serif;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-width: 150px;
+            justify-content: center;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        .status-message {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 12px;
+            display: none;
+        }
+        .status-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+        .status-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loading-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.15);
+            max-width: 300px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3>جاري المعالجة...</h3>
+            <p>يرجى الانتظار</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>اختبار تكامل Google Sheets</h1>
+        <p>هذا النموذج لاختبار إرسال البيانات إلى Google Sheets</p>
+        
+        <form id="testForm">
+            <div class="form-group">
+                <label for="inspectorName">اسم القائم بالمرور</label>
+                <input type="text" id="inspectorName" value="الطارق زهران" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="location">الجهة</label>
+                <input type="text" id="location" value="مستشفى المحلة الكبرى العام" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="date">تاريخ المرور</label>
+                <input type="date" id="date" value="2023-10-15" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="time">وقت المرور</label>
+                <input type="time" id="time" value="14:30" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="absenceCount">عدد حالات الغياب</label>
+                <input type="number" id="absenceCount" value="3" min="0" required>
+            </div>
+            
+            <button type="button" class="btn btn-primary" onclick="sendTestData()">
+                إرسال البيانات التجريبية
+            </button>
+        </form>
+        
+        <div class="status-message" id="statusMessage"></div>
+    </div>
+
+    <script>
+        function showLoading(show = true, message = 'جاري المعالجة...') {
+            const overlay = document.getElementById('loadingOverlay');
+            const content = overlay.querySelector('.loading-content h3');
+            if (content) {
+                content.textContent = message;
+            }
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        function hideLoading() {
+            showLoading(false);
+        }
+
+        function showStatus(message, type = 'success') {
+            const statusElement = document.getElementById('statusMessage');
+            if (statusElement) {
+                statusElement.textContent = message;
+                statusElement.className = 'status-message status-' + type;
+                statusElement.style.display = 'block';
+                
+                // Hide after 5 seconds
+                setTimeout(() => {
+                    statusElement.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        async function sendToRealGoogleSheets(data) {
+            const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxSMXxfqxfQ4_x00ydjA_I9vAXre5HLT6jEafVk6uFCMM-9niITztvHdXh5VKvu06Q/exec';
+            
+            try {
+                console.log('Sending data to Google Sheets:', data);
+                
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        date: data.date || '',
+                        time: data.time || '',
+                        inspector: data.inspectorName || '',
+                        location: data.location || '',
+                        countAbsence: data.absenceCount || 0
+                    })
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers.entries()]);
+                
+                // Check if we're being redirected to a login page
+                const redirectUrl = response.headers.get('location');
+                if (response.status === 302 && redirectUrl && redirectUrl.includes('accounts.google.com')) {
+                    throw new Error('Google Apps Script web app is not properly configured for public access. Please check the deployment settings in Google Apps Script and ensure "Anyone" or "Anyone with Google" has access.');
+                }
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Error response from Google Sheets:', errorText);
+                    throw new Error(`Failed to send data to Google Sheets: ${response.status} ${response.statusText}. ${errorText}`);
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const responseText = await response.text();
+                    console.error('Non-JSON response from Google Sheets:', responseText);
+                    throw new Error('Invalid response from Google Sheets. Please check your Google Apps Script configuration.');
+                }
+                
+                const result = await response.json();
+                console.log('Success response from Google Sheets:', result);
+                
+                if (!result.success) {
+                    throw new Error(result.message || 'Failed to send data to Google Sheets');
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('Error in sendToRealGoogleSheets:', error);
+                
+                // Provide more specific error messages
+                if (error.message.includes('Google Apps Script web app is not properly configured')) {
+                    throw new Error('خطأ في إعداد Google Apps Script: ' + error.message);
+                } else if (error.message.includes('Failed to fetch')) {
+                    throw new Error('فشل في الاتصال بـ Google Sheets. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.');
+                } else {
+                    throw error;
+                }
+            }
+        }
+
+        async function sendTestData() {
+            try {
+                // Collect form data
+                const data = {
+                    inspectorName: document.getElementById('inspectorName').value,
+                    location: document.getElementById('location').value,
+                    date: document.getElementById('date').value,
+                    time: document.getElementById('time').value,
+                    absenceCount: parseInt(document.getElementById('absenceCount').value) || 0
+                };
+                
+                showLoading(true, 'جاري إرسال البيانات...');
+                
+                // Send data to Google Sheets
+                await sendToRealGoogleSheets(data);
+                
+                showStatus('تم إرسال البيانات بنجاح لجوجل شيتس! ✅', 'success');
+                console.log('Data sent to Google Sheets:', data);
+            } catch (error) {
+                console.error('Error sending to Google Sheets:', error);
+                // Provide more specific error messages based on the error type
+                if (error.message.includes('Google Apps Script web app is not properly configured')) {
+                    showStatus('خطأ في إعداد Google Apps Script. يرجى مراجعة ملف GOOGLE_SHEETS_TROUBLESHOOTING.md للحصول على تعليمات الإصلاح.', 'error');
+                } else if (error.message.includes('Failed to fetch')) {
+                    showStatus('فشل في الاتصال بـ Google Sheets. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.', 'error');
+                } else if (error.message.includes('Invalid response')) {
+                    showStatus('استجابة غير صحيحة من Google Sheets. يرجى التحقق من إعدادات Google Apps Script.', 'error');
+                } else {
+                    showStatus('حدث خطأ في إرسال البيانات: ' + error.message, 'error');
+                }
+            } finally {
+                hideLoading();
+            }
+        }
+    </script>
+</body>
+</html>

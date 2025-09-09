@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار أنماط الطباعة</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            font-family: 'Noto Sans Arabic', sans-serif;
+            padding: 20px;
+            direction: rtl;
+        }
+        .test-buttons {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Noto Sans Arabic', sans-serif;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-width: 150px;
+            justify-content: center;
+            margin: 10px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-buttons">
+        <button class="btn btn-primary" onclick="window.print()">
+            <i class="fas fa-print"></i>
+            طباعة التقرير
+        </button>
+    </div>
+
+    <div class="report-preview" style="display: block;">
+        <div class="report-content">
+            <div class="report-header" role="banner">
+                <div class="ministry-name">مديرية الشئون الصحية بالغربية</div>
+                <div class="department-name">إدارة المراجعة الداخلية والحوكمة</div>
+                <div class="report-title">تقرير مرور</div>
+                <div class="report-subtitle">للعرض علي السيد الدكتور/ وكيل الوزارة</div>
+            </div>
+            
+            <div class="report-info-section">
+                <table class="info-table" role="table" aria-label="معلومات التقرير">
+                    <tr>
+                        <td class="highlight"><strong>اسم القائم بالمرور:</strong><br>الطارق زهران</td>
+                        <td class="highlight"><strong>الجهة:</strong><br>مستشفى المحلة الكبرى العام</td>
+                        <td><strong>-mfتش بإدارة الحوكمة بالمديرية</strong></td>
+                    </tr>
+                </table>
+                <table class="info-table" role="table" aria-label="تاريخ ووقت المرور">
+                    <tr>
+                        <td class="highlight"><strong>الساعة:</strong><br>10:30</td>
+                        <td class="highlight"><strong>تاريخ المرور:</strong><br>15/09/2025</td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="result-section">
+                <div class="result-title">نتيجة المرور:</div>
+                <div class="result-box">
+                    <strong>بالمرور علي مستشفى المحلة الكبرى العام</strong><br>
+                    <strong>لعمل انضباط إداري للعاملين تبين لنا:</strong>
+                    وجود حالات غياب بدون إذن وهم كالآتي:-
+                    <div style="text-align: center; margin: 6mm 0;">
+                        <span class="cases-count-box">
+                            <strong>عدد الحالات:- 3</strong>
+                        </span>
+                    </div>
+                </div>
+                
+                <table class="absence-table" id="absenceTable" dir="rtl" role="table" aria-label="جدول الغياب">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 10%">م</th>
+                            <th scope="col" style="width: 23%">الوظيفة</th>
+                            <th scope="col" style="width: 30%">الاسم</th>
+                            <th scope="col" style="width: 12%">عدد الحالات</th>
+                            <th scope="col" style="width: 25%">ملاحظات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1</strong></td>
+                            <td>طبيب عام</td>
+                            <td>أحمد محمد علي</td>
+                            <td>1</td>
+                            <td>مرفق كشف يبدأ برقم 1</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2</strong></td>
+                            <td>أخصائي تمريض</td>
+                            <td>فاطمة حسن محمد</td>
+                            <td>1</td>
+    <td>مرفق كشف برقم</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3</strong></td>
+                            <td>فني أشعة</td>
+                            <td>محمد عبد الرحمن</td>
+                            <td>1</td>
+                            <td>مرفق كشف ينتهي برقم 3</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4</strong></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>مرفق كشف برقم</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5</strong></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>مرفق كشف برقم</td>
+                        </tr>
+                        <tr>
+                            <td><strong>6</strong></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>مرفق كشف برقم</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="opinion-section">
+                <div class="result-title">الرأي:</div>
+                <div class="opinion-box">
+                    إحالة التقرير لإدارة الشئون القانونية بالمديرية لإعمال شئونها حيال حالات الغياب عن العمل بدون إذن كما هو موضح بصدر التقرير.
+                </div>
+                <div class="closing-statement">
+                    <strong>والأمر معروض ومفوض لسيادتكم،،</strong><br>
+                    <strong>وتفضلوا سيادتكم بقبول وافر التقدير والاحترام،</strong>
+                </div>
+            </div>
+            
+            <div class="signatures-section">
+                <div class="signature-box">
+                    <div class="signature-title">مدير الإدارة</div>
+                    <div class="signature-name">أ/عبدالله الجبالي</div>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-title">-mfتش مالي وإداري</div>
+                    <div class="signature-name">الطارق زهران</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
