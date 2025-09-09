@@ -1,0 +1,26 @@
+{
+  "name": "medical-inspection-reports",
+  "version": "1.0.0",
+  "description": "A professional system for creating and printing medical inspection reports for hospitals and health centers",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve . -p 3000",
+    "test": "node tests/test-runner.js",
+    "test:watch": "nodemon tests/test-runner.js"
+  },
+  "keywords": [
+    "medical",
+    "reports",
+    "inspection",
+    "healthcare",
+    "arabic"
+  ],
+  "author": "Tarek Zhran",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.0",
+    "nodemon": "^3.0.1"
+  }
+}
