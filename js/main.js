@@ -21,6 +21,15 @@ import {
     showStatus
 } from './utils.js';
 
+// Import database functions
+import {
+    loadDatabase,
+    getInspectors,
+    getLocations,
+    getEmployees,
+    getPositions
+} from './database.js';
+
 // =============================================================================
 // Application State
 // =============================================================================
@@ -32,91 +41,7 @@ import {
 const AppState = {
     sentReports: new Set(),
     absenceCount: 0,
-    isReportGenerated: false,
-    
-    /**
-     * Database of predefined values
-     * @property {Array<string>} inspectors - List of inspector names
-     * @property {Array<string>} locations - List of locations
-     * @property {Array<string>} employees - List of employee names
-     * @property {Array<string>} positions - List of job positions
-     */
-    database: {
-        inspectors: [
-            'الطارق زهران',
-            'أحمد محمد علي السيد',
-            'فاطمة حسن محمد أحمد',
-            'محمد عبد الرحمن الطيب',
-            'نور الدين أحمد عبد الله',
-            'سعاد محمود حسين',
-            'عبد الله عبد الغني الجبالي',
-            'مريم السيد محمد',
-            'حسام الدين محمد علي',
-            'ليلى عبد العزيز إبراهيم',
-            'خالد أحمد محمود',
-            'نادية حسين عبد الرحمن',
-            'طارق السيد أحمد',
-            'منى عبد الحميد محمد'
-        ],
-        locations: [
-            'مستشفى سمنود المركزي',
-            'مستشفى صدر المحلة الكبرى',
-            'مستشفى طنطا العام',
-            'مستشفى كفر الزيات المركزي',
-            'مستشفى المحلة الكبرى العام',
-            'مستشفى بسيون المركزي',
-            'مستشفى زفتى العام',
-            'مستشفى قطور المركزي',
-            'مستشفى السنطة المركزي',
-            'مركز صحي طنطا الشامل',
-            'مركز صحي المحلة الكبرى',
-            'مركز صحي كفر الزيات',
-            'مركز صحي سمنود',
-            'مركز صحي بسيون',
-            'مركز صحي زفتى'
-        ],
-        employees: [
-            'إبراهيم حمزة زايد',
-            'جهاد أنور عبد الستار',
-            'إيمان مجد رمضان',
-            'إسلام مسعد السيد',
-            'محمود شلبي الخولي',
-            'محمد عبد الوهاب أحمد',
-            'أحمد علي حسن محمد',
-            'فاطمة محمد سالم',
-            'عمر عبد الله الطيب',
-            'نادية حسين عبد الرحمن',
-            'سامي محمود إبراهيم',
-            'ليلى أحمد عبد العزيز',
-            'محمد صلاح الدين',
-            'هنا عبد العزيز محمد',
-            'يوسف إبراهيم أحمد',
-            'سارة محمد علي',
-            'حسام عبد الحميد',
-            'مروة أحمد سالم',
-            'عبد الرحمن محمود',
-            'زينب حسن محمد',
-            'أسامة عبد الله',
-            'رانيا السيد أحمد'
-        ],
-        positions: [
-            'استشاري صدر',
-            'علاج طبيعي',
-            'فنية تمريض',
-            'أخصائية تمريض',
-            'أخصائي شئون',
-            'فني تغذية',
-            'مهندس صيانة',
-            'أخصائي مختبر',
-            'فني أشعة',
-            'طبيب عام',
-            'أخصائي نفسي',
-            'فني صيدلة',
-            'أخصائي اجتماعي',
-            'فني معمل',
-            'سكرتير طبي'
-        ]
-    }
+    isReportGenerated: false
 };
 
 // =============================================================================
@@ -354,7 +279,7 @@ function generateReportHTML(data) {
                 <div class="signature-name">أ/عبدالله الجبالي</div>
             </div>
             <div class="signature-box">
-                <div class="signature-title">-mfتش مالي وإداري</div>
+                <div class="signature-title">مفتش مالي وإداري</div>
                 <div class="signature-name">${escapeHtml(data.inspectorName || '')}</div>
             </div>
         </div>
@@ -395,9 +320,11 @@ function generateReport() {
 
             const printBtn = document.getElementById('printBtn');
             const sendBtn = document.getElementById('sendBtn');
+            const exportPdfBtn = document.getElementById('exportPdfBtn');
             
             if (printBtn) printBtn.style.display = 'inline-flex';
             if (sendBtn) sendBtn.style.display = 'inline-flex';
+            if (exportPdfBtn) exportPdfBtn.style.display = 'inline-flex';
 
             AppState.isReportGenerated = true;
             hideLoading();
@@ -420,6 +347,39 @@ function generateReport() {
             showStatus('حدث خطأ في إنشاء التقرير. يرجى المحاولة مرة أخرى.', 'error');
         }
     }, 1000);
+}
+
+// =============================================================================
+// Export Functions
+// =============================================================================
+
+/**
+ * Exports the report as PDF
+ */
+function exportReportAsPDF() {
+    try {
+        // Validate that a report has been generated
+        if (!AppState.isReportGenerated) {
+            showStatus('⚠️ يرجى إنشاء التقرير أولاً قبل التصدير', 'error');
+            return;
+        }
+        
+        showLoading(true, 'جاري تصدير التقرير كملف PDF...');
+        
+        // Use the browser's print functionality to save as PDF
+        // In a real implementation, you might use a library like jsPDF
+        setTimeout(() => {
+            hideLoading();
+            showStatus('لتصدير التقرير كملف PDF، استخدم خيار "حفظ كـ PDF" في م dialog الطباعة', 'success');
+            
+            // Trigger print which allows saving as PDF
+            printReport();
+        }, 1500);
+    } catch (error) {
+        console.error('Error exporting report as PDF:', error);
+        hideLoading();
+        showStatus('حدث خطأ في تصدير التقرير. يرجى المحاولة مرة أخرى.', 'error');
+    }
 }
 
 // =============================================================================
@@ -618,13 +578,14 @@ function setupEmployeeAutoComplete(nameInputId, positionInputId) {
             nameInput.parentElement.appendChild(suggestionsDiv);
         }
         
-        setupAutoComplete(nameInputId, nameInputId + 'Suggestions', AppState.database.employees);
+        setupAutoComplete(nameInputId, nameInputId + 'Suggestions', getEmployees());
         
         nameInput.addEventListener('input', function() {
             try {
                 if (this.value && this.value.trim()) {
-                    if (AppState.database.positions && AppState.database.positions.length > 0 && !positionInput.value) {
-                        const randomPosition = AppState.database.positions[Math.floor(Math.random() * AppState.database.positions.length)];
+                    const positions = getPositions();
+                    if (positions && positions.length > 0 && !positionInput.value) {
+                        const randomPosition = positions[Math.floor(Math.random() * positions.length)];
                         positionInput.value = randomPosition;
                     }
                 }
@@ -669,7 +630,7 @@ function addAbsenceRow() {
             <label for="employeePosition${AppState.absenceCount}"><i class="fas fa-briefcase"></i> الوظيفة</label>
             <select id="employeePosition${AppState.absenceCount}" aria-describedby="employeePosition${AppState.absenceCount}-help">
                 <option value="">اختر الوظيفة</option>
-                ${AppState.database.positions ? AppState.database.positions.map(pos => {
+                ${getPositions() ? getPositions().map(pos => {
                     if (typeof pos === 'string') {
                         return `<option value="${escapeHtml(pos)}">${escapeHtml(pos)}</option>`;
                     }
@@ -959,6 +920,7 @@ function clearForm() {
             const reportPreview = document.getElementById('reportPreview');
             const printBtn = document.getElementById('printBtn');
             const sendBtn = document.getElementById('sendBtn');
+            const exportPdfBtn = document.getElementById('exportPdfBtn');
             
             if (reportForm) {
                 reportForm.reset();
@@ -977,6 +939,9 @@ function clearForm() {
             }
             if (sendBtn) {
                 sendBtn.style.display = 'none';
+            }
+            if (exportPdfBtn) {
+                exportPdfBtn.style.display = 'none';
             }
             
             AppState.absenceCount = 0;
@@ -1088,9 +1053,12 @@ async function simulateGoogleSheetsAPI(data) {
 /**
  * Initializes the application when the DOM is loaded
  */
-function initializeApp() {
+async function initializeApp() {
     try {
         console.log('🚀 Initializing Medical Inspection Reports System...');
+        
+        // Load the database
+        await loadDatabase();
         
         const now = new Date();
         const dateStr = now.toISOString().split('T')[0];
@@ -1107,14 +1075,10 @@ function initializeApp() {
         }
         
         // Set up autocomplete for inspectors
-        if (AppState.database.inspectors) {
-            setupAutoComplete('inspectorName', 'inspectorSuggestions', AppState.database.inspectors);
-        }
+        setupAutoComplete('inspectorName', 'inspectorSuggestions', getInspectors());
         
         // Set up autocomplete for locations
-        if (AppState.database.locations) {
-            setupAutoComplete('location', 'locationSuggestions', AppState.database.locations);
-        }
+        setupAutoComplete('location', 'locationSuggestions', getLocations());
         
         // Add initial absence row
         addAbsenceRow();
@@ -1213,6 +1177,7 @@ window.addEventListener('error', function(e) {
 // Make certain functions globally accessible for inline event handlers
 window.generateReport = generateReport;
 window.printReport = printReport;
+window.exportReportAsPDF = exportReportAsPDF;
 window.sendToGoogleSheets = sendToGoogleSheets;
 window.clearForm = clearForm;
 window.addAbsenceRow = addAbsenceRow;

@@ -80,11 +80,15 @@
                         <i class="fas fa-print"></i>
                         طباعة التقرير
                     </button>
-                    <button type="button" class="btn btn-info" onclick="sendToGoogleSheets()" id="sendBtn" style="display: none;">
+                    <button type="button" class="btn btn-info" onclick="exportReportAsPDF()" id="exportPdfBtn" style="display: none;">
+                        <i class="fas fa-file-pdf"></i>
+                        تصدير PDF
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="sendToGoogleSheets()" id="sendBtn" style="display: none;">
                         <i class="fas fa-cloud-upload-alt"></i>
                         إرسال لجوجل شيتس
                     </button>
-                    <button type="button" class="btn btn-warning" onclick="clearForm()">
+                    <button type="button" class="btn btn-secondary" onclick="clearForm()">
                         <i class="fas fa-eraser"></i>
                         مسح النموذج
                     </button>

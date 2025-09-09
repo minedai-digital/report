@@ -14,6 +14,8 @@ A professional web-based application for creating and printing medical inspectio
 - Advanced security features to prevent XSS attacks
 - Comprehensive error handling and user feedback
 - Performance optimized for fast loading and smooth operation
+- PDF export functionality
+- Comprehensive documentation
 
 ## Project Structure
 
@@ -25,10 +27,20 @@ medical-inspection-reports/
 ├── js/
 │   ├── main.js         # Main application logic with ES6 modules
 │   └── utils.js        # Utility functions for validation, formatting, and security
+├── docs/
+│   ├── README.md       # Documentation overview
+│   ├── user-guide.md   # User guide
+│   ├── api.md          # API documentation
+│   ├── development.md  # Development guide
+│   └── architecture.md # Architecture documentation
+├── tests/
+│   ├── test-runner.js  # Test runner
+│   └── utils.test.js   # Unit tests for utility functions
 ├── assets/
 │   └── fonts/          # Custom fonts (if any)
-├── tests/              # Unit tests for critical functions
 ├── package.json        # Project metadata and dependencies
+├── CHANGELOG.md        # Version history
+├── LICENSE             # License information
 └── README.md           # Project documentation
 ```
 
@@ -62,7 +74,7 @@ npm run dev
 2. Fill in the report details (inspector name, location, date, time)
 3. Add absence cases if any
 4. Click "Generate Report"
-5. Print the report or send data to Google Sheets
+5. Print the report, export as PDF, or send data to Google Sheets
 
 ## Keyboard Shortcuts
 
@@ -122,6 +134,19 @@ Unit tests are located in the `tests/` directory and can be run with:
 npm test
 ```
 
+To run tests in watch mode:
+```bash
+npm run test:watch
+```
+
+### Documentation
+
+Comprehensive documentation is available in the `docs/` directory:
+- [User Guide](docs/user-guide.md) - Instructions for end users
+- [API Documentation](docs/api.md) - Technical documentation for developers
+- [Development Guide](docs/development.md) - Guidelines for contributing to the project
+- [Architecture](docs/architecture.md) - System architecture and design decisions
+
 ### Contributing
 
 1. Fork the repository
@@ -136,6 +161,7 @@ npm test
 
 - `generateReport()` - Generates the medical inspection report
 - `printReport()` - Prints the generated report
+- `exportReportAsPDF()` - Exports the report as PDF
 - `sendToGoogleSheets()` - Sends data to Google Sheets (simulated)
 - `clearForm()` - Clears all form data
 - `addAbsenceRow()` - Adds a new absence row to the form
@@ -159,7 +185,7 @@ npm test
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Author
 
@@ -167,9 +193,4 @@ Developed by Tarek Zhran
 
 ## Changelog
 
-### v1.0.0
-- Initial release
-- Full Arabic language support
-- Responsive design for all device sizes
-- Complete report generation functionality
-- Data export capabilities
+See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
