@@ -41,7 +41,8 @@ import {
 const AppState = {
     sentReports: new Set(),
     absenceCount: 0,
-    isReportGenerated: false
+    isReportGenerated: false,
+    isDatabaseLoading: false
 };
 
 // =============================================================================
@@ -279,7 +280,7 @@ function generateReportHTML(data) {
                 <div class="signature-name">أ/عبدالله الجبالي</div>
             </div>
             <div class="signature-box">
-                <div class="signature-title">مفتش مالي وإداري</div>
+                <div class="signature-title">-mfتش مالي وإداري</div>
                 <div class="signature-name">${escapeHtml(data.inspectorName || '')}</div>
             </div>
         </div>
@@ -1057,8 +1058,13 @@ async function initializeApp() {
     try {
         console.log('🚀 Initializing Medical Inspection Reports System...');
         
+        // Show loading during database initialization
+        showLoading(true, 'جاري تحميل النظام...');
+        
         // Load the database
+        AppState.isDatabaseLoading = true;
         await loadDatabase();
+        AppState.isDatabaseLoading = false;
         
         const now = new Date();
         const dateStr = now.toISOString().split('T')[0];
@@ -1149,10 +1155,13 @@ async function initializeApp() {
             }
         }, 100);
         
+        hideLoading();
         console.log('✅ Medical Inspection Reports System initialized successfully');
         showStatus('تم تحميل النظام بنجاح! 🚀', 'success');
     } catch (error) {
         console.error('Error initializing application:', error);
+        AppState.isDatabaseLoading = false;
+        hideLoading();
         showStatus('حدث خطأ في تهيئة التطبيق. يرجى إعادة تحميل الصفحة.', 'error');
     }
 }

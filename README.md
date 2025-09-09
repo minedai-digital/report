@@ -26,7 +26,10 @@ medical-inspection-reports/
 │   └── styles.css      # Stylesheet with responsive design
 ├── js/
 │   ├── main.js         # Main application logic with ES6 modules
+│   ├── database.js     # Database module for data handling
 │   └── utils.js        # Utility functions for validation, formatting, and security
+├── data/
+│   └── database.json   # JSON data storage for inspectors, locations, employees, and positions
 ├── docs/
 │   ├── README.md       # Documentation overview
 │   ├── user-guide.md   # User guide
@@ -68,7 +71,24 @@ npm start
 npm run dev
 ```
 
-### Usage
+### Alternative Installation (without Node.js)
+
+If you don't have Node.js installed, you can use Python's built-in HTTP server:
+
+```bash
+# Navigate to the project directory
+cd medical-inspection-reports
+
+# Start Python HTTP server (Python 3)
+python3 -m http.server 8000
+
+# Or for Python 2
+python -m SimpleHTTPServer 8000
+```
+
+Then open your browser and go to `http://localhost:8000`
+
+## Usage
 
 1. Open the application in your browser
 2. Fill in the report details (inspector name, location, date, time)
@@ -101,6 +121,7 @@ The application follows a modular approach with clear separation of concerns:
 - **Business Logic**: Report generation, date formatting, and data processing
 - **Utilities**: Helper functions for validation, formatting, security, and DOM manipulation
 - **Error Handling**: Comprehensive error handling with user-friendly messages
+- **Database**: Separate JSON file for data storage with dedicated module
 
 ### Security Features
 
@@ -175,6 +196,14 @@ Comprehensive documentation is available in the `docs/` directory:
 - `validateForm()` - Validates form data
 - `showStatus(message, type)` - Displays status messages
 - `showLoading(show, message)` - Shows/hides loading overlay
+
+### Database Functions
+
+- `loadDatabase()` - Loads the database from JSON file
+- `getInspectors()` - Gets list of inspectors
+- `getLocations()` - Gets list of locations
+- `getEmployees()` - Gets list of employees
+- `getPositions()` - Gets list of positions
 
 ## Browser Support
 

@@ -36,14 +36,24 @@ async function loadDatabase() {
             throw new Error(`Failed to load database: ${response.status} ${response.statusText}`);
         }
         
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Invalid database file format. Expected JSON.');
+        }
+        
         database = await response.json();
         isDatabaseLoaded = true;
+        
+        // Validate database structure
+        if (!database || typeof database !== 'object') {
+            throw new Error('Invalid database structure');
+        }
         
         console.log('Database loaded successfully');
         return database;
     } catch (error) {
         console.error('Error loading database:', error);
-        throw new Error('Failed to load application database');
+        throw new Error(`Failed to load application database: ${error.message}`);
     }
 }
 
@@ -61,7 +71,7 @@ function getDatabase() {
  */
 function getInspectors() {
     if (!database) return [];
-    return database.inspectors || [];
+    return Array.isArray(database.inspectors) ? database.inspectors : [];
 }
 
 /**
@@ -70,7 +80,7 @@ function getInspectors() {
  */
 function getLocations() {
     if (!database) return [];
-    return database.locations || [];
+    return Array.isArray(database.locations) ? database.locations : [];
 }
 
 /**
@@ -79,7 +89,7 @@ function getLocations() {
  */
 function getEmployees() {
     if (!database) return [];
-    return database.employees || [];
+    return Array.isArray(database.employees) ? database.employees : [];
 }
 
 /**
@@ -88,7 +98,7 @@ function getEmployees() {
  */
 function getPositions() {
     if (!database) return [];
-    return database.positions || [];
+    return Array.isArray(database.positions) ? database.positions : [];
 }
 
 // =============================================================================

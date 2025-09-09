@@ -95,6 +95,26 @@ function isValidPhone(phone) {
     return phoneRegex.test(phone);
 }
 
+/**
+ * Validates that a value is a positive integer
+ * @param {any} value - Value to validate
+ * @returns {boolean} True if the value is a positive integer, false otherwise
+ */
+function isPositiveInteger(value) {
+    return Number.isInteger(value) && value > 0;
+}
+
+/**
+ * Validates that a value is within a specified range
+ * @param {number} value - Value to validate
+ * @param {number} min - Minimum value (inclusive)
+ * @param {number} max - Maximum value (inclusive)
+ * @returns {boolean} True if the value is within range, false otherwise
+ */
+function isInRange(value, min, max) {
+    return typeof value === 'number' && value >= min && value <= max;
+}
+
 // =============================================================================
 // Formatting Functions
 // =============================================================================
@@ -155,6 +175,19 @@ function truncateString(str, maxLength, suffix = '...') {
         return str;
     }
     return str.substring(0, maxLength) + suffix;
+}
+
+/**
+ * Formats a currency value
+ * @param {number} amount - Amount to format
+ * @param {string} currency - Currency symbol (default: 'EGP')
+ * @returns {string} Formatted currency string
+ */
+function formatCurrency(amount, currency = 'EGP') {
+    if (typeof amount !== 'number') {
+        return amount;
+    }
+    return `${formatNumber(amount)} ${currency}`;
 }
 
 // =============================================================================
@@ -233,6 +266,27 @@ function generateReportId(data) {
         console.error('Error generating report ID:', error);
         return 'error_report_id';
     }
+}
+
+/**
+ * Validates and sanitizes a string for safe use
+ * @param {string} str - String to validate and sanitize
+ * @param {number} maxLength - Maximum allowed length
+ * @returns {string} Validated and sanitized string
+ */
+function validateAndSanitizeString(str, maxLength = 1000) {
+    if (!isValidString(str)) {
+        return '';
+    }
+    
+    // Truncate if too long
+    let sanitized = str.trim();
+    if (sanitized.length > maxLength) {
+        sanitized = sanitized.substring(0, maxLength);
+    }
+    
+    // Sanitize for security
+    return sanitizeInput(sanitized);
 }
 
 // =============================================================================
@@ -356,6 +410,29 @@ function removeClass(elementId, className) {
     }
 }
 
+/**
+ * Toggles a CSS class on an element
+ * @param {string} elementId - ID of the element
+ * @param {string} className - CSS class to toggle
+ */
+function toggleClass(elementId, className) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.classList.toggle(className);
+    }
+}
+
+/**
+ * Checks if an element has a specific CSS class
+ * @param {string} elementId - ID of the element
+ * @param {string} className - CSS class to check
+ * @returns {boolean} True if the element has the class, false otherwise
+ */
+function hasClass(elementId, className) {
+    const element = document.getElementById(elementId);
+    return element ? element.classList.contains(className) : false;
+}
+
 // =============================================================================
 // Export Functions
 // =============================================================================
@@ -372,17 +449,21 @@ export {
     isValidTime,
     isValidEmail,
     isValidPhone,
+    isPositiveInteger,
+    isInRange,
     
     // Formatting functions
     formatDate,
     formatTime,
     formatNumber,
+    formatCurrency,
     truncateString,
     
     // Security functions
     escapeHtml,
     sanitizeInput,
     generateReportId,
+    validateAndSanitizeString,
     
     // DOM utility functions
     showLoading,
@@ -390,5 +471,7 @@ export {
     showStatus,
     scrollToElement,
     addClass,
-    removeClass
+    removeClass,
+    toggleClass,
+    hasClass
 };
