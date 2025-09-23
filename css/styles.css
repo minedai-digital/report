@@ -143,6 +143,29 @@ textarea {
     background-color: white;
 }
 
+textarea {
+    min-height: 60px;
+    resize: vertical;
+    line-height: 1.5;
+    max-height: 150px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) var(--border-color);
+}
+
+textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+textarea::-webkit-scrollbar-track {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+textarea::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 4px;
+}
+
 input:focus,
 select:focus,
 textarea:focus {
@@ -377,58 +400,90 @@ input:invalid:not(:focus):not(:placeholder-shown) {
 
 /* Report Formatting Styles */
 .report-header {
-    text-align: center;
-    margin-bottom: 30px;
-    border-bottom: 2px solid #000;
-    padding-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+    border-bottom: 3px double #000;
+    padding-bottom: 25px;
+    position: relative;
+}
+
+.header-right {
+    text-align: right;
+    flex: 1;
 }
 
 .ministry-name {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 10px;
-    color: #2c3e50;
+    color: #000;
+    font-family: 'Noto Sans Arabic', 'Traditional Arabic', serif;
 }
 
 .department-name {
-    font-size: 20px;
-    margin-bottom: 15px;
-    color: #34495e;
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #000;
+    font-weight: 600;
+}
+
+.header-center {
+    text-align: center;
+    flex: 2;
+    margin-top: 15px;
 }
 
 .report-title {
-    font-size: 28px;
+    font-size: 36px;
     font-weight: bold;
-    margin: 20px 0;
-    color: #2c3e50;
+    margin: 12px 0;
+    color: #000;
+    font-family: 'Thuluth', 'Noto Sans Arabic', serif;
+    text-decoration: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 6px;
 }
 
 .report-subtitle {
-    font-size: 18px;
-    color: #34495e;
-    margin-bottom: 10px;
+    font-size: 16px;
+    color: #000;
+    margin-top: 12px;
+    font-weight: 600;
 }
 
 .report-info-section {
     margin: 20px 0;
 }
 
-.info-table {
-    width: 100%;
-    margin-bottom: 15px;
-    border-collapse: collapse;
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    margin: 30px 0;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 4px;
 }
 
-.info-table td {
-    padding: 15px;
-    border: 1px solid #ddd;
-    width: 33.33%;
-    text-align: center;
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    line-height: 1.6;
 }
 
-.info-table .highlight {
-    background-color: #f8f9fa;
+.info-item label {
+    color: #000;
     font-weight: 600;
+    white-space: nowrap;
+}
+
+.info-item span {
+    color: #000;
 }
 
 .result-section {

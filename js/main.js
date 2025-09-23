@@ -95,16 +95,19 @@ function collectAbsenceData() {
             try {
                 const nameInput = row.querySelector('input[type="text"]');
                 const positionSelect = row.querySelector('select');
+                const notesTextarea = row.querySelector('textarea');
                 
                 if (nameInput && nameInput.value && nameInput.value.trim()) {
                     const name = nameInput.value.trim();
                     const position = positionSelect ? positionSelect.value : '';
+                    const notes = notesTextarea ? notesTextarea.value.trim() : '';
                     
                     if (name.length > 0) {
                         absencesList.push({
                             id: index + 1,
                             name: name,
-                            position: position
+                            position: position,
+                            notes: notes
                         });
                     }
                 }
@@ -250,50 +253,82 @@ function generateReportHTML(data) {
 
         return `
         <div class="report-header" role="banner">
-            <div class="ministry-name">مديرية الشئون الصحية بالغربية</div>
-            <div class="department-name">إدارة المراجعة الداخلية والحوكمة</div>
-            <div class="report-title">تقرير مرور</div>
-            <div class="report-subtitle">للعرض علي السيد الدكتور/ وكيل الوزارة</div>
+            <div class="header-right">
+                <div class="ministry-name">مديرية الشئون الصحية بالغربية</div>
+                <div class="department-name">إدارة المراجعة الداخلية والحوكمة</div>
+            </div>
+            <div class="header-center">
+                <div class="report-title">تقرير مرور</div>
+                <div class="report-subtitle">للعرض على السيد الدكتور/ وكيل الوزارة</div>
+            </div>
         </div>
         
         <div class="report-info-section">
-            <table class="info-table" role="table" aria-label="معلومات التقرير">
-                <tr>
-                    <td class="highlight"><strong>اسم القائم بالمرور:</strong><br>${escapeHtml(data.inspectorName || '')}</td>
-                    <td class="highlight"><strong>الجهة:</strong><br>${escapeHtml(data.location || '')}</td>
-                    <td><strong>مفتش بإدارة الحوكمة بالمديرية</strong></td>
-                </tr>
-            </table>
-            <table class="info-table" role="table" aria-label="تاريخ ووقت المرور">
-                <tr>
-                    <td class="highlight"><strong>الساعة:</strong><br>${formatTime(data.time)}</td>
-                    <td class="highlight"><strong>تاريخ المرور:</strong><br>${formattedDate}</td>
-                    <td></td>
-                </tr>
-            </table>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>اسم القائم بالمرور / </label>
+                    <span>${escapeHtml(data.inspectorName || '')} (مفتش مالي وإداري)</span>
+                </div>
+                <div class="info-item">
+                    <label>الجهة / </label>
+                    <span>${escapeHtml(data.location || '')}</span>
+                </div>
+                <div class="info-item">
+                    <label>تاريخ المرور / </label>
+                    <span>${formattedDate}</span>
+                </div>
+                <div class="info-item">
+                    <label>وقت المرور / </label>
+                    <span>${formatTime(data.time)}</span>
+                </div>
+            </div>
         </div>
         
         <div class="result-section">
-            <div class="result-title">نتيجة المرور:</div>
+            <div class="result-title">نتيجة المرور</div>
             <div class="result-box">
-                <strong>بالمرور علي ${escapeHtml(data.location || '')}</strong><br>
-                <strong>لعمل انضباط إداري للعاملين تبين لنا:</strong>
-                ${hasAbsences ? 'وجود حالات غياب بدون إذن وهم كالآتي:-' : 'عدم وجود حالات غياب عن الشئونية في ذات يوم المرور'}
-                <div style="text-align: center; margin: 6mm 0;">
-                    <span class="cases-count-box">
-                        <strong>عدد الحالات:- ${hasAbsences ? data.absences.length : 'لا يوجد'}</strong>
-                    </span>
+                <div class="result-content">
+                    <p>بالمرور على ${escapeHtml(data.location || '')} لعمل انضباط إداري للعاملين تبين لنا:</p>
+                    <p class="result-finding">${hasAbsences ? 'وجود حالات غياب بدون إذن وهم كالآتي:-' : 'عدم وجود حالات غياب '}</p>
+                    ${hasAbsences ? `
+                    <div class="cases-count">
+                        <span class="count-label">عدد الحالات:</span>
+                        <span class="count-value">${data.absences.length}</span>
+                    </div>
+                    ` : ''}
                 </div>
             </div>
-            ${absenceTableHTML}
-        </div>
+            ${hasAbsences ? `
+            <div class="absence-table-container">
+                <table class="absence-table" role="table" aria-label="جدول حالات الغياب">
+                    <thead>
+                        <tr>
+                            <th>م</th>
+                            <th>الاسم</th>
+                            <th>الوظيفة</th>
+                            <th>الملاحظات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.absences.map((absence, index) => `
+                            <tr>
+                                <td class="index-cell">${index + 1}</td>
+                                <td class="name-cell">${escapeHtml(absence.name || '')}</td>
+                                <td class="position-cell">${escapeHtml(absence.position || '')}</td>
+                                <td class="notes-cell">${escapeHtml(absence.notes || '')}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+            ` : ''}
         
         <div class="opinion-section">
             <div class="result-title">الرأي:</div>
             <div class="opinion-box">
                 ${hasAbsences ? 
                     'إحالة التقرير لإدارة الشئون القانونية بالمديرية لإعمال شئونها حيال حالات الغياب عن العمل بدون إذن كما هو موضح بصدر التقرير.' :
-                    'حفظ التقرير لعدم وجود حالات غياب عن الشئونية'}
+                    'حفظ التقرير لعدم وجود حالات غياب  '}
             </div>
             <div class="closing-statement">
                 <strong>والأمر معروض ومفوض لسيادتكم،،</strong><br>
@@ -608,19 +643,41 @@ function setupEmployeeInput(nameInputId, positionInputId) {
             console.error('Elements not found for employee input setup');
             return;
         }
+
+        // تحويل القائمة المنسدلة إلى مربع نص
+        const positionTextInput = document.createElement('input');
+        positionTextInput.type = 'text';
+        positionTextInput.placeholder = 'أدخل الوظيفة';
+        positionTextInput.id = positionInput.id;
+        positionTextInput.className = positionInput.className;
         
-        // Remove any existing autocomplete functionality
-        // Just set up a simple input without suggestions
+        // نقل خصائص ARIA
+        if (positionInput.hasAttribute('aria-describedby')) {
+            positionTextInput.setAttribute('aria-describedby', positionInput.getAttribute('aria-describedby'));
+        }
+        
+        // استبدال القائمة المنسدلة بمربع النص
+        positionInput.parentNode.replaceChild(positionTextInput, positionInput);
+        
+        // تحديث المرجع ليشير إلى مربع النص الجديد
+        positionInput = positionTextInput;
+        
+        // إضافة مستمع لحدث الإدخال لحفظ المناصب الجديدة
+        positionInput.addEventListener('input', function() {
+            const newPosition = this.value.trim();
+            if (newPosition && database && Array.isArray(database.positions)) {
+                if (!database.positions.includes(newPosition)) {
+                    database.positions.push(newPosition);
+                }
+            }
+        });
         
         nameInput.addEventListener('input', function() {
             try {
-                // Optionally auto-fill position when name is entered
-                // This can be removed if not needed
-                if (this.value && this.value.trim()) {
-                    const positions = getPositions();
-                    if (positions && positions.length > 0 && !positionInput.value) {
-                        const randomPosition = positions[Math.floor(Math.random() * positions.length)];
-                        positionInput.value = randomPosition;
+                const name = this.value.trim();
+                if (name && database && Array.isArray(database.employees)) {
+                    if (!database.employees.includes(name)) {
+                        database.employees.push(name);
                     }
                 }
             } catch (error) {
@@ -665,16 +722,21 @@ function addAbsenceRow() {
         </div>
         <div class="form-group">
             <label for="employeePosition${AppState.absenceCount}"><i class="fas fa-briefcase"></i> الوظيفة</label>
-            <select id="employeePosition${AppState.absenceCount}" aria-describedby="employeePosition${AppState.absenceCount}-help">
-                <option value="">اختر الوظيفة</option>
-                ${getPositions() ? getPositions().map(pos => {
-                    if (typeof pos === 'string') {
-                        return `<option value="${escapeHtml(pos)}">${escapeHtml(pos)}</option>`;
-                    }
-                    return '';
-                }).join('') : ''}
-            </select>
+            <input type="text" id="employeePosition${AppState.absenceCount}" placeholder="أدخل الوظيفة" aria-describedby="employeePosition${AppState.absenceCount}-help">
             <div id="employeePosition${AppState.absenceCount}-help" class="sr-only">اختر وظيفة الموظف</div>
+        </div>
+        <div class="form-group">
+            <label for="employeeNotes${AppState.absenceCount}"><i class="fas fa-comment-alt"></i> ملاحظات</label>
+            <div style="position: relative;">
+                <textarea id="employeeNotes${AppState.absenceCount}" 
+                    placeholder="أدخل الملاحظات إن وجدت" 
+                    aria-describedby="employeeNotes${AppState.absenceCount}-help"
+                    rows="2"
+                    style="resize: vertical; min-height: 60px;"
+                ></textarea>
+                <i class="fas fa-comment-alt input-icon"></i>
+            </div>
+            <div id="employeeNotes${AppState.absenceCount}-help" class="sr-only">أدخل أي ملاحظات إضافية</div>
         </div>
         <div class="form-group">
             <label style="opacity: 0;" for="removeBtn${AppState.absenceCount}">حذف</label>
@@ -750,7 +812,30 @@ function updateRowNumbers() {
             return;
         }
         
+        // تحديث عداد الغياب
         AppState.absenceCount = rows.length;
+        
+        // إضافة المناصب والأسماء المدخلة حديثاً إلى قاعدة البيانات
+        const newPositions = new Set();
+        const newEmployees = new Set();
+        
+        rows.forEach(row => {
+            const positionSelect = row.querySelector('select');
+            const nameInput = row.querySelector('input[type="text"]');
+            
+            if (nameInput && nameInput.value.trim()) {
+                newEmployees.add(nameInput.value.trim());
+            }
+            if (positionSelect && positionSelect.value.trim()) {
+                newPositions.add(positionSelect.value.trim());
+            }
+        });
+        
+        // تحديث قاعدة البيانات
+        if (database) {
+            database.positions = Array.from(new Set([...database.positions, ...newPositions]));
+            database.employees = Array.from(new Set([...database.employees, ...newEmployees]));
+        }
         
         rows.forEach((row, index) => {
             try {
