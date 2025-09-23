@@ -21,7 +21,7 @@
 
     <div class="container">
         <div class="app-header fade-in">
-            <h1 class="app-title"> تقارير المرور </h1>
+            <h1 class="app-title">نظام تقارير المرور الطبية</h1>
             <p class="app-subtitle">نظام إدارة تقارير المرور على المستشفيات والمراكز الصحية</p>
         </div>
 
@@ -80,15 +80,11 @@
                         <i class="fas fa-print"></i>
                         طباعة التقرير
                     </button>
-                    <button type="button" class="btn btn-info" onclick="exportReportAsPDF()" id="exportPdfBtn" style="display: none;">
-                        <i class="fas fa-file-pdf"></i>
-                        تصدير PDF
-                    </button>
-                    <button type="button" class="btn btn-warning" onclick="sendToGoogleSheets()" id="sendBtn" style="display: none;">
+                    <button type="button" class="btn btn-info" onclick="sendToGoogleSheets()" id="sendBtn" style="display: none;">
                         <i class="fas fa-cloud-upload-alt"></i>
                         إرسال لجوجل شيتس
                     </button>
-                    <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                    <button type="button" class="btn btn-warning" onclick="clearForm()">
                         <i class="fas fa-eraser"></i>
                         مسح النموذج
                     </button>
@@ -105,7 +101,7 @@
         </div>
     </div>
 
-    <!-- ربط ملف الجافاسكريبت -->
-    <script src="js/main.js" type="module"></script>
+    <!-- ربط ملفات الجافاسكريبت -->
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>

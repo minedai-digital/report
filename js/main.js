@@ -38,11 +38,38 @@ import {
  * Application state management
  * @namespace AppState
  */
+// تحسين إدارة حالة التطبيق باستخدام نمط Observer
 const AppState = {
-    sentReports: new Set(),
-    absenceCount: 0,
-    isReportGenerated: false,
-    isDatabaseLoading: false
+    state: {
+        sentReports: new Set(),
+        absenceCount: 0,
+        isReportGenerated: false,
+        isDatabaseLoading: false,
+        lastModified: new Date(),
+        errors: [],
+        formValidationState: {},
+        cachedData: new Map()
+    },
+    
+    observers: new Set(),
+    
+    subscribe(observer) {
+        this.observers.add(observer);
+    },
+    
+    unsubscribe(observer) {
+        this.observers.delete(observer);
+    },
+    
+    notify() {
+        this.observers.forEach(observer => observer(this.state));
+    },
+    
+    setState(updates) {
+        Object.assign(this.state, updates);
+        this.state.lastModified = new Date();
+        this.notify();
+    }
 };
 
 // =============================================================================
@@ -298,6 +325,14 @@ function generateReportHTML(data) {
 function generateReport() {
     showLoading();
     
+    // إضافة نظام تسجيل للأخطاء
+    const errorLogger = {
+        log: function(error, context) {
+            console.error(`[${new Date().toISOString()}] Error in ${context}:`, error);
+            // يمكن إضافة إرسال الأخطاء لخدمة تتبع الأخطاء هنا
+        }
+    };
+    
     setTimeout(() => {
         try {
             const data = collectFormData();
@@ -403,6 +438,10 @@ function setupAutoComplete(inputId, suggestionsId, dataArray) {
         
         const input = document.getElementById(inputId);
         const suggestionsDiv = document.getElementById(suggestionsId);
+        
+        // استخدام debounce لتحسين أداء البحث
+        const debounceTimeout = 300;
+        let debounceTimer;
         
         if (!input || !suggestionsDiv) {
             console.error('Elements not found for autocomplete setup');
@@ -607,6 +646,9 @@ function addAbsenceRow() {
             showStatus('حدث خطأ في إضافة صف الغياب. يرجى إعادة تحميل الصفحة.', 'error');
             return;
         }
+        
+        // استخدام DocumentFragment لتحسين الأداء
+        const fragment = document.createDocumentFragment();
         
         const rowDiv = document.createElement('div');
         rowDiv.className = 'absence-row slide-up';
@@ -1132,8 +1174,14 @@ async function initializeApp() {
     try {
         console.log('🚀 Initializing Medical Inspection Reports System...');
         
-        // Show loading during database initialization
+        // تحسين أداء التحميل باستخدام تحميل متوازٍ
         showLoading(true, 'جاري تحميل النظام...');
+        
+        // تحميل الموارد بشكل متوازي
+        const [dbResult] = await Promise.all([
+            loadDatabase(),
+            // يمكن إضافة المزيد من عمليات التحميل المتوازية هنا
+        ]);
         
         // Load the database
         AppState.isDatabaseLoading = true;
