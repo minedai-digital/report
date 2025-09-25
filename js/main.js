@@ -1,17 +1,10 @@
 /**
- * Main application logic for the Medical Inspection Reports System
- * 
- * This module handles all the core functionality of the application including
- * form handling, report generation, data management, and user interactions.
- * 
+ * Medical Inspection Reports System
  * @author Tarek Zhran
  * @version 1.0.0
  */
 
-// Import utility functions
 import {
-    MONTHS,
-    DAYS,
     formatDate,
     formatTime,
     escapeHtml,
@@ -21,7 +14,6 @@ import {
     showStatus
 } from './utils.js';
 
-// Import database functions
 import {
     loadDatabase,
     getInspectors,
@@ -30,140 +22,57 @@ import {
     getPositions
 } from './database.js';
 
-// =============================================================================
-// Application State
-// =============================================================================
-
-/**
- * Application state management
- * @namespace AppState
- */
-// تحسين إدارة حالة التطبيق باستخدام نمط Observer
 const AppState = {
-    state: {
-        sentReports: new Set(),
-        absenceCount: 0,
-        isReportGenerated: false,
-        isDatabaseLoading: false,
-        lastModified: new Date(),
-        errors: [],
-        formValidationState: {},
-        cachedData: new Map()
-    },
-    
-    observers: new Set(),
-    
-    subscribe(observer) {
-        this.observers.add(observer);
-    },
-    
-    unsubscribe(observer) {
-        this.observers.delete(observer);
-    },
-    
-    notify() {
-        this.observers.forEach(observer => observer(this.state));
-    },
-    
-    setState(updates) {
-        Object.assign(this.state, updates);
-        this.state.lastModified = new Date();
-        this.notify();
-    }
+    absenceCount: 0,
+    isReportGenerated: false,
+    sentReports: new Set()
 };
 
 // =============================================================================
 // Data Collection Functions
 // =============================================================================
 
-/**
- * Collects absence data from form fields
- * @returns {Array<Object>} Array of absence records
- * @throws {Error} If there's an error collecting data
- */
 function collectAbsenceData() {
-    try {
-        const absencesList = [];
-        const rows = document.querySelectorAll('#absenceRows .absence-row');
+    const absencesList = [];
+    const rows = document.querySelectorAll('#absenceRows .absence-row');
+    
+    rows.forEach((row, index) => {
+        const nameInput = row.querySelector('input[type="text"]');
+        const positionInput = row.querySelector('input[id^="employeePosition"]');
+        const startNumber = row.querySelector('input[id^="startNumber"]');
+        const endNumber = row.querySelector('input[id^="endNumber"]');
         
-        if (!rows || rows.length === 0) {
-            console.warn('No absence rows found');
-            return absencesList;
+        if (nameInput?.value.trim()) {
+            absencesList.push({
+                id: index + 1,
+                name: nameInput.value.trim(),
+                position: positionInput?.value.trim() || '',
+                startNumber: startNumber?.value || '',
+                endNumber: endNumber?.value || ''
+            });
         }
-        
-        rows.forEach((row, index) => {
-            try {
-                const nameInput = row.querySelector('input[type="text"]');
-                const positionSelect = row.querySelector('select');
-                const notesTextarea = row.querySelector('textarea');
-                
-                if (nameInput && nameInput.value && nameInput.value.trim()) {
-                    const name = nameInput.value.trim();
-                    const position = positionSelect ? positionSelect.value : '';
-                    const notes = notesTextarea ? notesTextarea.value.trim() : '';
-                    
-                    if (name.length > 0) {
-                        absencesList.push({
-                            id: index + 1,
-                            name: name,
-                            position: position,
-                            notes: notes
-                        });
-                    }
-                }
-            } catch (rowError) {
-                console.error(`Error processing absence row ${index}:`, rowError);
-            }
-        });
-        
-        return absencesList;
-    } catch (error) {
-        console.error('Error collecting absence data:', error);
-        showStatus('حدث خطأ في جمع بيانات الغياب. يرجى المحاولة مرة أخرى.', 'error');
-        return [];
-    }
+    });
+    
+    return absencesList;
 }
 
-/**
- * Collects main form data
- * @returns {Object} Form data object
- * @throws {Error} If there's an error collecting data
- */
 function collectFormData() {
-    try {
-        const inspectorName = document.getElementById('inspectorName');
-        const location = document.getElementById('location');
-        const date = document.getElementById('date');
-        const time = document.getElementById('time');
-        
-        const data = {
-            inspectorName: inspectorName ? inspectorName.value.trim() : '',
-            location: location ? location.value.trim() : '',
-            date: date ? date.value : '',
-            time: time ? time.value : '',
-            absences: collectAbsenceData()
-        };
-        
-        // Log the collected data for debugging
-        console.log('Collected form data:', data);
-        
-        return data;
-    } catch (error) {
-        console.error('Error collecting form data:', error);
-        showStatus('حدث خطأ في جمع بيانات النموذج. يرجى المحاولة مرة أخرى.', 'error');
-        return {
-            inspectorName: '',
-            location: '',
-            date: '',
-            time: '',
-            absences: []
-        };
-    }
+    return {
+        inspectorName: document.getElementById('inspectorName')?.value.trim() || '',
+        location: document.getElementById('location')?.value.trim() || '',
+        date: document.getElementById('date')?.value || '',
+        time: document.getElementById('time')?.value || '',
+        absences: collectAbsenceData()
+    };
 }
 
 // =============================================================================
 // Report Generation Functions
 // =============================================================================
+
+
+
+
 
 /**
  * Generates the absence table HTML
@@ -181,11 +90,11 @@ function generateAbsenceTable(absences) {
         <table class="absence-table" id="absenceTable" dir="rtl" role="table" aria-label="جدول الغياب">
             <thead>
                 <tr>
-                    <th scope="col" style="width: 10%">م</th>
                     <th scope="col" style="width: 23%">الوظيفة</th>
                     <th scope="col" style="width: 30%">الاسم</th>
-                    <th scope="col" style="width: 12%">عدد الحالات</th>
                     <th scope="col" style="width: 25%">ملاحظات</th>
+                    <th scope="col" style="width: 12%">عدد الحالات</th>
+                    <th scope="col" style="width: 10%">م</th>
                 </tr>
             </thead>
             <tbody>`;
@@ -198,16 +107,17 @@ function generateAbsenceTable(absences) {
             
             const position = absence.position || '';
             const name = absence.name || '';
+            const startNumber = absence.startNumber || '';
+            const endNumber = absence.endNumber || '';
+            const casesCount = startNumber && endNumber ? (parseInt(endNumber) - parseInt(startNumber) + 1) : 0;
             
             tableHTML += `
             <tr>
-                <td><strong>${index + 1}</strong></td>
                 <td>${escapeHtml(position)}</td>
                 <td>${escapeHtml(name)}</td>
-                <td>1</td>
-                <td>${index === 0 ? 'مرفق كشف يبدأ برقم 1' : 
-                     index === absences.length - 1 ? `مرفق كشف ينتهي برقم ${absences.length}` : 
-                     'مرفق كشف برقم'}</td>
+                <td>مرفق كشف من ${startNumber || '_'} إلى ${endNumber || '_'}</td>
+                <td>${casesCount || 0}</td>
+                <td><strong>${index + 1}</strong></td>
             </tr>
         `;
         });
@@ -393,9 +303,13 @@ function generateReport() {
             const sendBtn = document.getElementById('sendBtn');
             const exportPdfBtn = document.getElementById('exportPdfBtn');
             
-            if (printBtn) printBtn.style.display = 'inline-flex';
-            if (sendBtn) sendBtn.style.display = 'inline-flex';
-            if (exportPdfBtn) exportPdfBtn.style.display = 'inline-flex';
+            ['printBtn', 'exportPdfBtn'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    btn.style.display = 'inline-flex';
+                    btn.disabled = false;
+                }
+            });
 
             AppState.isReportGenerated = true;
             hideLoading();
@@ -428,29 +342,35 @@ function generateReport() {
  * Exports the report as PDF
  */
 function exportReportAsPDF() {
-    try {
-        // Validate that a report has been generated
-        if (!AppState.isReportGenerated) {
-            showStatus('⚠️ يرجى إنشاء التقرير أولاً قبل التصدير', 'error');
-            return;
-        }
-        
-        showLoading(true, 'جاري تصدير التقرير كملف PDF...');
-        
-        // Use the browser's print functionality to save as PDF
-        // In a real implementation, you might use a library like jsPDF
-        setTimeout(() => {
-            hideLoading();
-            showStatus('لتصدير التقرير كملف PDF، استخدم خيار "حفظ كـ PDF" في م dialog الطباعة', 'success');
-            
-            // Trigger print which allows saving as PDF
-            printReport();
-        }, 1500);
-    } catch (error) {
-        console.error('Error exporting report as PDF:', error);
-        hideLoading();
-        showStatus('حدث خطأ في تصدير التقرير. يرجى المحاولة مرة أخرى.', 'error');
+    if (!AppState.isReportGenerated) {
+        showStatus('⚠️ يرجى إنشاء التقرير أولاً قبل التصدير', 'error');
+        return;
     }
+    
+    showLoading(true, 'جاري تصدير التقرير كملف PDF...');
+    setTimeout(() => {
+        hideLoading();
+        showStatus('لتصدير التقرير كملف PDF، استخدم خيار "حفظ كـ PDF" في نافذة الطباعة', 'success');
+        printReport();
+    }, 1000);
+}
+
+function printReport() {
+    if (!AppState.isReportGenerated) {
+        showStatus('⚠️ يرجى إنشاء التقرير أولاً قبل الطباعة', 'error');
+        return;
+    }
+    
+    const elementsToHide = document.querySelectorAll('.app-header, .form-container, .actions, .status-message');
+    elementsToHide.forEach(el => el?.classList.add('no-print'));
+    
+    window.print();
+    
+    setTimeout(() => {
+        elementsToHide.forEach(el => el?.classList.remove('no-print'));
+    }, 1000);
+    
+    showStatus('جاري طباعة التقرير...', 'success');
 }
 
 // =============================================================================
@@ -630,65 +550,37 @@ function selectSuggestion(inputId, value) {
  * @throws {Error} If there's an error setting up employee input
  */
 function setupEmployeeInput(nameInputId, positionInputId) {
-    try {
-        if (!nameInputId || !positionInputId) {
-            console.error('Invalid parameters for employee input setup');
-            return;
+    const nameInput = document.getElementById(nameInputId);
+    const positionInput = document.getElementById(positionInputId);
+    
+    if (!nameInput || !positionInput) return;
+    
+    nameInput.addEventListener('input', function() {
+        const name = this.value.trim();
+        if (name && database?.employees && !database.employees.includes(name)) {
+            database.employees.push(name);
         }
-        
-        const nameInput = document.getElementById(nameInputId);
-        const positionInput = document.getElementById(positionInputId);
-        
-        if (!nameInput || !positionInput) {
-            console.error('Elements not found for employee input setup');
-            return;
+    });
+    
+    positionInput.addEventListener('input', function() {
+        const position = this.value.trim();
+        if (position && database?.positions && !database.positions.includes(position)) {
+            database.positions.push(position);
         }
+    });
 
-        // تحويل القائمة المنسدلة إلى مربع نص
-        const positionTextInput = document.createElement('input');
-        positionTextInput.type = 'text';
-        positionTextInput.placeholder = 'أدخل الوظيفة';
-        positionTextInput.id = positionInput.id;
-        positionTextInput.className = positionInput.className;
-        
-        // نقل خصائص ARIA
-        if (positionInput.hasAttribute('aria-describedby')) {
-            positionTextInput.setAttribute('aria-describedby', positionInput.getAttribute('aria-describedby'));
+nameInput.addEventListener('input', function() {
+    try {
+        const name = this.value.trim();
+        if (name && database && Array.isArray(database.employees)) {
+            if (!database.employees.includes(name)) {
+                database.employees.push(name);
+            }
         }
-        
-        // استبدال القائمة المنسدلة بمربع النص
-        positionInput.parentNode.replaceChild(positionTextInput, positionInput);
-        
-        // تحديث المرجع ليشير إلى مربع النص الجديد
-        positionInput = positionTextInput;
-        
-        // إضافة مستمع لحدث الإدخال لحفظ المناصب الجديدة
-        positionInput.addEventListener('input', function() {
-            const newPosition = this.value.trim();
-            if (newPosition && database && Array.isArray(database.positions)) {
-                if (!database.positions.includes(newPosition)) {
-                    database.positions.push(newPosition);
-                }
-            }
-        });
-        
-        nameInput.addEventListener('input', function() {
-            try {
-                const name = this.value.trim();
-                if (name && database && Array.isArray(database.employees)) {
-                    if (!database.employees.includes(name)) {
-                        database.employees.push(name);
-                    }
-                }
-            } catch (error) {
-                console.error('Error in employee name input handler:', error);
-            }
-        });
     } catch (error) {
-        console.error('Error setting up employee input:', error);
-        showStatus('حدث خطأ في إعداد حقل اسم الموظف. يرجى المحاولة مرة أخرى.', 'error');
+        console.error('Error in employee name input handler:', error);
     }
-}
+});
 
 /**
  * Adds a new absence row to the form
@@ -725,25 +617,39 @@ function addAbsenceRow() {
             <input type="text" id="employeePosition${AppState.absenceCount}" placeholder="أدخل الوظيفة" aria-describedby="employeePosition${AppState.absenceCount}-help">
             <div id="employeePosition${AppState.absenceCount}-help" class="sr-only">اختر وظيفة الموظف</div>
         </div>
-        <div class="form-group">
-            <label for="employeeNotes${AppState.absenceCount}"><i class="fas fa-comment-alt"></i> ملاحظات</label>
-            <div style="position: relative;">
-                <textarea id="employeeNotes${AppState.absenceCount}" 
-                    placeholder="أدخل الملاحظات إن وجدت" 
-                    aria-describedby="employeeNotes${AppState.absenceCount}-help"
-                    rows="2"
-                    style="resize: vertical; min-height: 60px;"
-                ></textarea>
-                <i class="fas fa-comment-alt input-icon"></i>
+                    <div class="form-group numbers-group">
+                <div class="number-inputs">
+                    <div class="number-input">
+                        <label for="startNumber${AppState.absenceCount}"><i class="fas fa-sort-numeric-down"></i> من رقم</label>
+                        <input type="number" 
+                            id="startNumber${AppState.absenceCount}" 
+                            min="1"
+                            placeholder="رقم البداية"
+                            aria-describedby="startNumber${AppState.absenceCount}-help"
+                            onchange="updateCasesCount(${AppState.absenceCount})"
+                        >
+                    </div>
+                    <div class="number-input">
+                        <label for="endNumber${AppState.absenceCount}"><i class="fas fa-sort-numeric-up"></i> إلى رقم</label>
+                        <input type="number" 
+                            id="endNumber${AppState.absenceCount}" 
+                            min="1"
+                            placeholder="رقم النهاية"
+                            aria-describedby="endNumber${AppState.absenceCount}-help"
+                            onchange="updateCasesCount(${AppState.absenceCount})"
+                        >
+                    </div>
+                </div>
+                <div id="casesCount${AppState.absenceCount}" class="cases-count">
+                    عدد الحالات: <span>0</span>
+                </div>
             </div>
-            <div id="employeeNotes${AppState.absenceCount}-help" class="sr-only">أدخل أي ملاحظات إضافية</div>
-        </div>
-        <div class="form-group">
-            <label style="opacity: 0;" for="removeBtn${AppState.absenceCount}">حذف</label>
-            <button type="button" id="removeBtn${AppState.absenceCount}" class="btn btn-danger" onclick="removeAbsenceRow(this)" title="حذف هذه الحالة" aria-label="حذف حالة الغياب">
-                <i class="fas fa-trash-alt"></i>
-            </button>
-        </div>
+            <div class="form-group">
+                <label style="opacity: 0;" for="removeBtn${AppState.absenceCount}">حذف</label>
+                <button type="button" id="removeBtn${AppState.absenceCount}" class="btn btn-danger" onclick="removeAbsenceRow(this)" title="حذف هذه الحالة" aria-label="حذف حالة الغياب">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
     `;
         
         absenceRows.appendChild(rowDiv);
@@ -772,32 +678,17 @@ function addAbsenceRow() {
  * @throws {Error} If there's an error removing the row
  */
 function removeAbsenceRow(btn) {
-    try {
-        if (!btn) {
-            console.error('Delete button not provided');
-            showStatus('حدث خطأ في حذف صف الغياب. يرجى المحاولة مرة أخرى.', 'error');
-            return;
-        }
-        
-        const row = btn.closest('.absence-row');
-        
-        if (row) {
-            // Animation for removal
-            row.style.transform = 'translateX(100%)';
-            row.style.opacity = '0';
-            
-            setTimeout(() => {
-                if (row.parentNode) {
-                    row.remove();
-                    updateRowNumbers();
-                    showStatus('تم حذف حالة الغياب بنجاح', 'success');
-                }
-            }, 300);
-        }
-    } catch (error) {
-        console.error('Error removing absence row:', error);
-        showStatus('حدث خطأ في حذف صف الغياب. يرجى المحاولة مرة أخرى.', 'error');
-    }
+    const row = btn.closest('.absence-row');
+    if (!row) return;
+    
+    row.style.transform = 'translateX(100%)';
+    row.style.opacity = '0';
+    
+    setTimeout(() => {
+        row.remove();
+        updateRowNumbers();
+        showStatus('تم حذف حالة الغياب بنجاح', 'success');
+    }, 300);
 }
 
 /**
@@ -941,158 +832,89 @@ function printReport() {
  * @returns {boolean} True if form is valid, false otherwise
  */
 function validateForm() {
-    try {
-        const inspectorName = document.getElementById('inspectorName');
-        const location = document.getElementById('location');
-        const date = document.getElementById('date');
-        const time = document.getElementById('time');
-        
-        if (!inspectorName || !location || !date || !time) {
-            showStatus('حدث خطأ في النظام. يرجى إعادة تحميل الصفحة.', 'error');
-            return false;
-        }
-        
-        const inspectorNameValue = inspectorName.value.trim();
-        const locationValue = location.value.trim();
-        const dateValue = date.value;
-        const timeValue = time.value;
-        
-        // Validate inspector name
-        if (!inspectorNameValue) {
-            showStatus('⚠️ يرجى إدخال اسم القائم بالمرور', 'error');
-            inspectorName.focus();
-            return false;
-        }
-        
-        // Validate location
-        if (!locationValue) {
-            showStatus('⚠️ يرجى إدخال اسم الجهة', 'error');
-            location.focus();
-            return false;
-        }
-        
-        // Validate date
-        if (!dateValue) {
-            showStatus('⚠️ يرجى إدخال تاريخ المرور', 'error');
-            date.focus();
-            return false;
-        }
-        
-        // Validate time
-        if (!timeValue) {
-            showStatus('⚠️ يرجى إدخال وقت المرور', 'error');
-            time.focus();
-            return false;
-        }
-        
-        // Validate date range
-        const selectedDate = new Date(dateValue);
-        const today = new Date();
-        const oneYearAgo = new Date();
-        oneYearAgo.setFullYear(today.getFullYear() - 1);
-        
-        if (selectedDate > today) {
-            showStatus('⚠️ لا يمكن أن يكون تاريخ المرور في المستقبل', 'error');
-            date.focus();
-            return false;
-        }
-        
-        if (selectedDate < oneYearAgo) {
-            showStatus('⚠️ تاريخ المرور قديم جداً', 'error');
-            date.focus();
-            return false;
-        }
-        
-        // Validate absence rows if any exist
-        const absenceRows = document.querySelectorAll('#absenceRows .absence-row');
-        if (absenceRows.length > 0) {
-            let hasValidAbsence = false;
-            for (const row of absenceRows) {
-                const nameInput = row.querySelector('input[type="text"]');
-                if (nameInput && nameInput.value && nameInput.value.trim()) {
-                    hasValidAbsence = true;
-                    break;
-                }
-            }
-            
-            // If there are rows but none have valid data, show warning
-            if (!hasValidAbsence) {
-                if (!confirm('لا توجد حالات غياب مدخلة. هل تريد المتابعة بدون حالات غياب؟')) {
-                    return false;
-                }
-            }
-        }
-        
-        return true;
-    } catch (error) {
-        console.error('Error validating form:', error);
-        showStatus('حدث خطأ في التحقق من صحة البيانات. يرجى المحاولة مرة أخرى.', 'error');
+    const inspectorName = document.getElementById('inspectorName');
+    const location = document.getElementById('location');
+    const date = document.getElementById('date');
+    const time = document.getElementById('time');
+    
+    if (!inspectorName?.value.trim()) {
+        showStatus('⚠️ يرجى إدخال اسم القائم بالمرور', 'error');
+        inspectorName?.focus();
         return false;
     }
+    
+    if (!location?.value.trim()) {
+        showStatus('⚠️ يرجى إدخال اسم الجهة', 'error');
+        location?.focus();
+        return false;
+    }
+    
+    if (!date?.value) {
+        showStatus('⚠️ يرجى إدخال تاريخ المرور', 'error');
+        date?.focus();
+        return false;
+    }
+    
+    if (!time?.value) {
+        showStatus('⚠️ يرجى إدخال وقت المرور', 'error');
+        time?.focus();
+        return false;
+    }
+    
+    const selectedDate = new Date(date.value);
+    const today = new Date();
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(today.getFullYear() - 1);
+    
+    if (selectedDate > today) {
+        showStatus('⚠️ لا يمكن أن يكون تاريخ المرور في المستقبل', 'error');
+        date.focus();
+        return false;
+    }
+    
+    if (selectedDate < oneYearAgo) {
+        showStatus('⚠️ تاريخ المرور قديم جداً', 'error');
+        date.focus();
+        return false;
+    }
+    
+    const absenceRows = document.querySelectorAll('#absenceRows .absence-row');
+    if (absenceRows.length > 0) {
+        const hasValidAbsence = Array.from(absenceRows).some(row => 
+            row.querySelector('input[type="text"]')?.value.trim()
+        );
+        
+        if (!hasValidAbsence && !confirm('لا توجد حالات غياب مدخلة. هل تريد المتابعة بدون حالات غياب؟')) {
+            return false;
+        }
+    }
+    
+    return true;
 }
 
 /**
  * Clears the entire form
  */
 function clearForm() {
-    if (confirm('هل أنت متأكد من رغبتك في مسح جميع البيانات؟')) {
-        try {
-            const reportForm = document.getElementById('reportForm');
-            const absenceRows = document.getElementById('absenceRows');
-            const reportPreview = document.getElementById('reportPreview');
-            const printBtn = document.getElementById('printBtn');
-            const sendBtn = document.getElementById('sendBtn');
-            const exportPdfBtn = document.getElementById('exportPdfBtn');
-            
-            if (reportForm) {
-                reportForm.reset();
-            }
-            
-            if (absenceRows) {
-                absenceRows.innerHTML = '';
-            }
-            
-            if (reportPreview) {
-                reportPreview.style.display = 'none';
-            }
-            
-            if (printBtn) {
-                printBtn.style.display = 'none';
-            }
-            if (sendBtn) {
-                sendBtn.style.display = 'none';
-            }
-            if (exportPdfBtn) {
-                exportPdfBtn.style.display = 'none';
-            }
-            
-            AppState.absenceCount = 0;
-            AppState.isReportGenerated = false;
-            
-            const now = new Date();
-            const dateStr = now.toISOString().split('T')[0];
-            const timeStr = now.toTimeString().slice(0, 5);
-            
-            const dateElement = document.getElementById('date');
-            const timeElement = document.getElementById('time');
-            
-            if (dateElement) {
-                dateElement.value = dateStr;
-            }
-            if (timeElement) {
-                timeElement.value = timeStr;
-            }
-            
-            // Add one empty absence row
-            addAbsenceRow();
-            
-            showStatus('تم مسح النموذج بنجاح! ✨', 'success');
-            console.log('Form cleared successfully');
-        } catch (error) {
-            console.error('Error clearing form:', error);
-            showStatus('حدث خطأ في مسح النموذج. يرجى المحاولة مرة أخرى.', 'error');
-        }
-    }
+    if (!confirm('هل أنت متأكد من رغبتك في مسح جميع البيانات؟')) return;
+    
+    document.getElementById('reportForm')?.reset();
+    document.getElementById('absenceRows').innerHTML = '';
+    document.getElementById('reportPreview').style.display = 'none';
+    
+    ['printBtn', 'sendBtn', 'exportPdfBtn'].forEach(id => {
+        document.getElementById(id).style.display = 'none';
+    });
+    
+    AppState.absenceCount = 0;
+    AppState.isReportGenerated = false;
+    
+    const now = new Date();
+    document.getElementById('date').value = now.toISOString().split('T')[0];
+    document.getElementById('time').value = now.toTimeString().slice(0, 5);
+    
+    addAbsenceRow();
+    showStatus('تم مسح النموذج بنجاح! ✨', 'success');
 }
 
 // =============================================================================
@@ -1256,118 +1078,72 @@ async function simulateGoogleSheetsAPI(data) {
  * Initializes the application when the DOM is loaded
  */
 async function initializeApp() {
+    showLoading(true, 'جاري تحميل النظام...');
+    
     try {
-        console.log('🚀 Initializing Medical Inspection Reports System...');
-        
-        // تحسين أداء التحميل باستخدام تحميل متوازٍ
-        showLoading(true, 'جاري تحميل النظام...');
-        
-        // تحميل الموارد بشكل متوازي
-        const [dbResult] = await Promise.all([
-            loadDatabase(),
-            // يمكن إضافة المزيد من عمليات التحميل المتوازية هنا
-        ]);
-        
-        // Load the database
-        AppState.isDatabaseLoading = true;
         await loadDatabase();
-        AppState.isDatabaseLoading = false;
         
+        // تعيين التاريخ والوقت الحالي
         const now = new Date();
-        const dateStr = now.toISOString().split('T')[0];
-        const timeStr = now.toTimeString().slice(0, 5);
+        document.getElementById('date')?.value = now.toISOString().split('T')[0];
+        document.getElementById('time')?.value = now.toTimeString().slice(0, 5);
         
-        const dateElement = document.getElementById('date');
-        const timeElement = document.getElementById('time');
+        // إضافة مستمعي الأحداث للأزرار
+        document.getElementById('generateReportBtn')?.addEventListener('click', generateReport);
+        document.getElementById('printBtn')?.addEventListener('click', printReport);
+        document.getElementById('exportPdfBtn')?.addEventListener('click', exportReportAsPDF);
+        document.getElementById('clearFormBtn')?.addEventListener('click', clearForm);
+        document.getElementById('addAbsenceBtn')?.addEventListener('click', addAbsenceRow);
         
-        if (dateElement) {
-            dateElement.value = dateStr;
-        }
-        if (timeElement) {
-            timeElement.value = timeStr;
-        }
-        
-        // Set up autocomplete for inspectors
+        // إعداد النموذج
         setupAutoComplete('inspectorName', 'inspectorSuggestions', getInspectors());
-        
-        // Set up autocomplete for locations
         setupAutoComplete('location', 'locationSuggestions', getLocations());
-        
-        // Add initial absence row
         addAbsenceRow();
         
-        // Set up form submission handler
-        const reportForm = document.getElementById('reportForm');
-        if (reportForm) {
-            reportForm.addEventListener('submit', function(e) {
+        // إعداد مستمعي الأحداث للنموذج والأزرار
+        document.getElementById('reportForm')?.addEventListener('submit', e => {
+            e.preventDefault();
+            generateReport();
+        });
+        
+        // تعيين مستمعي الأحداث للأزرار
+        const buttons = {
+            'printBtn': printReport,
+            'exportPdfBtn': exportReportAsPDF,
+            'clearFormBtn': clearForm,
+            'addAbsenceBtn': addAbsenceRow
+        };
+        
+        Object.entries(buttons).forEach(([id, handler]) => {
+            document.getElementById(id)?.addEventListener('click', handler);
+        });
+        
+        // اختصارات لوحة المفاتيح
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey && e.key === 'p' && document.getElementById('printBtn')?.style.display !== 'none') {
+                e.preventDefault();
+                printReport();
+            } else if (e.ctrlKey && e.key === 's') {
                 e.preventDefault();
                 generateReport();
-            });
-        }
-        
-        // Set up keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            try {
-                // Ctrl+P for print
-                if (e.ctrlKey && e.key === 'p') {
-                    e.preventDefault();
-                    const printBtn = document.getElementById('printBtn');
-                    if (printBtn && printBtn.style.display !== 'none') {
-                        printReport();
-                    }
-                }
-                // Ctrl+S for generate report
-                else if (e.ctrlKey && e.key === 's') {
-                    e.preventDefault();
-                    generateReport();
-                }
-                // Ctrl+N for clear form
-                else if (e.ctrlKey && e.key === 'n') {
-                    e.preventDefault();
-                    clearForm();
-                }
-                // F5 for refresh with confirmation
-                else if (e.key === 'F5') {
-                    e.preventDefault();
-                    if (confirm('هل تريد إعادة تحميل الصفحة؟ سيتم فقدان البيانات الحالية.')) {
-                        location.reload();
-                    }
-                }
-            } catch (error) {
-                console.error('Error in keyboard shortcut handler:', error);
+            } else if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                clearForm();
             }
         });
         
-        // Set up click handler to close suggestions when clicking outside
-        document.addEventListener('click', function(e) {
-            try {
-                if (!e.target.closest('.form-group')) {
-                    const suggestions = document.querySelectorAll('.suggestions');
-                    suggestions.forEach(s => {
-                        if (s && s.style) {
-                            s.style.display = 'none';
-                        }
-                    });
-                }
-            } catch (error) {
-                console.error('Error in click handler:', error);
+        // إخفاء الاقتراحات عند النقر خارجها
+        document.addEventListener('click', e => {
+            if (!e.target.closest('.form-group')) {
+                document.querySelectorAll('.suggestions').forEach(s => s.style.display = 'none');
             }
         });
         
-        // Add loaded class for animations
-        setTimeout(() => {
-            const body = document.body;
-            if (body) {
-                body.classList.add('loaded');
-            }
-        }, 100);
-        
+        document.body?.classList.add('loaded');
         hideLoading();
-        console.log('✅ Medical Inspection Reports System initialized successfully');
         showStatus('تم تحميل النظام بنجاح! 🚀', 'success');
     } catch (error) {
-        console.error('Error initializing application:', error);
-        AppState.isDatabaseLoading = false;
+        console.error('Error:', error);
         hideLoading();
         showStatus('حدث خطأ في تهيئة التطبيق. يرجى إعادة تحميل الصفحة.', 'error');
     }
@@ -1400,5 +1176,43 @@ window.addAbsenceRow = addAbsenceRow;
 window.removeAbsenceRow = removeAbsenceRow;
 window.selectSuggestion = selectSuggestion;
 
+/**
+ * Updates the cases count based on start and end numbers
+ * @param {number} rowIndex - The index of the absence row
+ */
+function updateCasesCount(rowIndex) {
+    const startInput = document.getElementById(`startNumber${rowIndex}`);
+    const endInput = document.getElementById(`endNumber${rowIndex}`);
+    const casesCountElement = document.getElementById(`casesCount${rowIndex}`);
+    
+    if (!startInput || !endInput || !casesCountElement) return;
+    
+    const start = parseInt(startInput.value) || 0;
+    const end = parseInt(endInput.value) || 0;
+    
+    if (start && end) {
+        if (end < start) {
+            showStatus('رقم النهاية يجب أن يكون أكبر من أو يساوي رقم البداية', 'error');
+            endInput.value = '';
+            casesCountElement.querySelector('span').textContent = '0';
+            return;
+        }
+        casesCountElement.querySelector('span').textContent = end - start + 1;
+    } else {
+        casesCountElement.querySelector('span').textContent = '0';
+    }
+}
+
+// جعل الوظائف متاحة عالمياً للأزرار
+window.generateReport = generateReport;
+window.printReport = printReport;
+window.exportReportAsPDF = exportReportAsPDF;
+window.clearForm = clearForm;
+window.addAbsenceRow = addAbsenceRow;
+window.removeAbsenceRow = removeAbsenceRow;
+window.updateCasesCount = updateCasesCount;
+window.selectSuggestion = selectSuggestion;
+
 // Initialize the application when the DOM is loaded
 document.addEventListener('DOMContentLoaded', initializeApp);
+}
